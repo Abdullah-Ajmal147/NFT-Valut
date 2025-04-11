@@ -1,0 +1,138 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Transaction History - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Transaction History</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Filters -->
+                    <form method="get" class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label for="transaction_type" class="form-label">Transaction Type</label>
+                            <select class="form-select" id="transaction_type" name="transaction_type">
+                                <option value="">All Types</option>
+                                <option value="buy" {% if request.GET.transaction_type == 'buy' %}selected{% endif %}>Buy</option>
+                                <option value="sell" {% if request.GET.transaction_type == 'sell' %}selected{% endif %}>Sell</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        </div>
+                    </form>
+
+                    <!-- Transaction Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>NFT</th>
+                                    <th>Price</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                    <th>Transaction Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                    <tr>
+                                        <td>{{ transaction.created_at|date:"F j, Y H:i" }}</td>
+                                        <td>
+                                            {% if transaction.transaction_type == 'buy' %}
+                                                <span class="badge bg-success">Buy</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Sell</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'marketplace:nft_detail' transaction.nft.pk %}">
+                                                {{ transaction.nft.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ transaction.price }} ETH</td>
+                                        <td>{{ transaction.seller.username }}</td>
+                                        <td>{{ transaction.buyer.username }}</td>
+                                        <td>
+                                            {% if transaction.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif transaction.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Failed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="https://etherscan.io/tx/{{ transaction.hash }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;">
+                                                {{ transaction.hash }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No transactions found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

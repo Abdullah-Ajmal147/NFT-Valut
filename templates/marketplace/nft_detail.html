@@ -1,0 +1,687 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load nft_filters %}
+
+{% block title %}{{ nft.name }} - NFTVault{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+        --secondary-gradient: linear-gradient(135deg, #3B82F6, #2563EB);
+        --accent-color: #10B981;
+        --danger-color: #EF4444;
+        --text-primary: #1F2937;
+        --text-secondary: #4B5563;
+        --background-light: #F9FAFB;
+        --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        --card-hover-shadow: 0 20px 30px rgba(0, 0, 0, 0.12);
+        --border-radius: 16px;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--background-light);
+        color: var(--text-primary);
+    }
+
+    .nft-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        opacity: 0;
+        animation: fadeIn 0.6s ease forwards;
+    }
+
+    .nft-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.025em;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #1F2937, #4B5563);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .nft-subtitle {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        letter-spacing: -0.01em;
+        margin-bottom: 1.5rem;
+    }
+
+    .nft-description {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(75, 85, 99, 0.1);
+    }
+
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        background: #FFFFFF;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .price-card {
+        background: var(--primary-gradient);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .price-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0.7;
+        z-index: 0;
+    }
+
+    .price-text {
+        font-size: 2.75rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn {
+        border: none;
+        padding: 0.875rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        letter-spacing: -0.01em;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-primary:hover::after {
+        left: 100%;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+        margin-top: 1rem;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(239, 68, 68, 0.3);
+    }
+    
+    .btn-danger::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-danger:hover::after {
+        left: 100%;
+    }
+
+    .table {
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .table th {
+        background-color: rgba(243, 244, 246, 0.8);
+        font-weight: 600;
+        color: var(--text-primary);
+        padding: 1.2rem 1rem;
+        border-top: none;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1.2rem 1rem;
+        border-color: rgba(243, 244, 246, 0.5);
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(243, 244, 246, 0.3);
+    }
+
+    .nft-image-container {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--card-shadow);
+        height: 0;
+        padding-bottom: 130%; /* 1:1 Aspect Ratio */
+        background-color: #f0f0f0;
+    }
+
+    .nft-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .nft-image-container:hover .nft-image {
+        transform: scale(1.05);
+    }
+    
+    .nft-image-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+    
+    .nft-image-container:hover::after {
+        opacity: 1;
+    }
+
+    .details-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid rgba(243, 244, 246, 0.7);
+    }
+
+    .details-item:last-child {
+        border-bottom: none;
+    }
+
+    .details-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .details-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .crypto-value {
+        color: #8B5CF6;
+        font-weight: 700;
+    }
+
+    .badge-rarity {
+        padding: 0.35rem 0.85rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background: var(--secondary-gradient);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+    }
+
+    .transaction-date {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .transaction-type {
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background-color: #E5E7EB;
+        color: var(--text-primary);
+    }
+
+    .transaction-type.sale {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #065F46;
+    }
+
+    .transaction-type.mint {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #1E40AF;
+    }
+
+    .modal-content {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(243, 244, 246, 0.7);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(243, 244, 246, 0.7);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    .nft-container {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .nft-image-container {
+        animation: fadeIn 0.7s ease forwards;
+    }
+    
+    .price-card {
+        animation: slideUp 0.6s 0.2s ease-out both;
+    }
+    
+    .card:not(.price-card) {
+        animation: slideUp 0.6s 0.3s ease-out both;
+    }
+    
+    .btn-primary {
+        animation: pulse 2s infinite;
+    }
+
+    @media (max-width: 767.98px) {
+        .nft-title {
+            font-size: 2rem;
+        }
+        
+        .price-text {
+            font-size: 2.25rem;
+        }
+        
+        .nft-image-container {
+            padding-bottom: 100%; /* Keep 1:1 aspect ratio on mobile */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 nft-container" style="padding-top: 0.1rem !important;">
+    <div class="row g-4 g-md-5">
+        <!-- NFT Image -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="nft-image-container">
+                <img src="{{ nft.image.url }}" class="nft-image" alt="{{ nft.name }}">
+            </div>
+        </div>
+
+        <!-- NFT Details -->
+        <div class="col-lg-6">
+            <h1 class="nft-title">{{ nft.name }}</h1>
+            <p class="nft-subtitle">
+                By <strong>{{ nft.creator.username }}</strong> • 
+                <span class="badge-rarity">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-stars me-1" viewBox="0 0 16 16">
+                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828l.645-1.937zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.734 1.734 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.734 1.734 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.734 1.734 0 0 0 3.407 2.31l.387-1.162zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L10.863.1z"/>
+                    </svg>
+                    {{ nft.get_rarity_level_display }}
+                </span>
+            </p>
+            <p class="nft-description">{{ nft.description }}</p>
+
+            <div class="card price-card mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title text-white mb-0 fw-light">Current Price</h5>
+                        <small class="text-white opacity-75">USDT</small>
+                    </div>
+                    <p class="price-text mb-0 mt-2">{{ nft.price|format_crypto }}</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3 fw-bold">NFT Details</h5>
+                    
+                    <div class="details-item">
+                        <span class="details-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash me-1" viewBox="0 0 16 16">
+                                <path d="M8.39 12.648a1.32 1.32 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1.06 1.06 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.512.512 0 0 0-.523-.516.539.539 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532 0 .312.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531 0 .313.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242l-.515 2.492zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/>
+                            </svg>
+                            Token ID
+                        </span>
+                        <span class="details-value">{{ nft.token_id }}</span>
+                    </div>
+                    
+                    <div class="details-item">
+                        <span class="details-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-code me-1" viewBox="0 0 16 16">
+                                <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                                <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z"/>
+                            </svg>
+                            Contract
+                        </span>
+                        <span class="details-value">{{ nft.contract_address|truncatechars:10 }}</span>
+                    </div>
+                    
+                    <div class="details-item">
+                        <span class="details-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event me-1" viewBox="0 0 16 16">
+                                <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                            </svg>
+                            Created
+                        </span>
+                        <span class="details-value">{{ nft.created_at|date:"F j, Y" }}</span>
+                    </div>
+                    
+                    <div class="details-item">
+                        <span class="details-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-percent me-1" viewBox="0 0 16 16">
+                                <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0zM4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                            </svg>
+                            Commission Rate
+                        </span>
+                        <span class="details-value">{{ nft.commission_rate}}%</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'marketplace:buy_nft' nft.pk %}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart-plus me-2" viewBox="0 0 16 16">
+                        <path d="M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9V5.5z"/>
+                        <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    Buy Now
+                </a>
+
+                {% if user_owns_nft %}
+                    <button class="btn btn-danger w-100 d-flex align-items-center justify-content-center" onclick="confirmSell()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-tag me-2" viewBox="0 0 16 16">
+                            <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                            <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                        </svg>
+                        Sell Your NFT
+                    </button>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-warning text-center py-3 d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16">
+                        <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                        <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                    </svg>
+                    Please <a href="{% url 'users:login' %}" class="alert-link">login</a> to purchase this NFT
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="section-title">Transaction History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>From</th>
+                            <th>To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in nft.transactions.all %}
+                            <tr style="animation: fadeIn 0.3s {{ forloop.counter|add:2 }}00ms ease forwards; opacity: 0;">
+                                <td class="transaction-date">{{ transaction.created_at|date:"F j, Y H:i" }}</td>
+                                <td>
+                                    <span class="transaction-type {% if transaction.transaction_type == 'SALE' %}sale{% elif transaction.transaction_type == 'MINT' %}mint{% endif %}">
+                                        {{ transaction.get_transaction_type_display }}
+                                    </span>
+                                </td>
+                                <td class="crypto-value">{{ transaction.price|format_crypto }} USDT</td>
+                                <td>{{ transaction.seller.username|default:"N/A" }}</td>
+                                <td>{{ transaction.buyer.username }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <div class="py-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-clock-history mb-2 text-muted" viewBox="0 0 16 16">
+                                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                                            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+                                            <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+                                        </svg>
+                                        <p>No transactions recorded yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sell Confirmation Modal -->
+<div class="modal fade" id="sellConfirmModal" tabindex="-1" aria-labelledby="sellConfirmLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="sellConfirmLabel">Confirm NFT Sale</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="text-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-question-diamond text-danger mb-3" viewBox="0 0 16 16">
+                <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
+                <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+            </svg>
+            <h4>Are you sure you want to sell this NFT?</h4>
+            <p class="text-muted mb-0">This action will list your NFT on the marketplace.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="sellNFT()">
+            Yes, List for Sale
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmSell() {
+    var modal = new bootstrap.Modal(document.getElementById('sellConfirmModal'));
+    modal.show();
+}
+
+function sellNFT() {
+    const sellButton = document.querySelector('#sellConfirmModal .btn-danger');
+    const originalText = sellButton.innerHTML;
+    
+    // Show loading state
+    sellButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+    sellButton.disabled = true;
+    
+    fetch("{% url 'marketplace:sell_nfts' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nft_id: "{{ nft.id }}" })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Show success message with animation
+            const modal = document.getElementById('sellConfirmModal');
+            modal.querySelector('.modal-body').innerHTML = `
+                <div class="text-center py-4">
+                    <div class="success-checkmark">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="#10B981" class="bi bi-check-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-success mt-3">Success!</h4>
+                    <p>Your NFT has been listed for sale on the marketplace.</p>
+                    <style>
+                        .success-checkmark svg {
+                            animation: scaleIn 0.3s ease-in-out forwards;
+                            transform-origin: center;
+                            transform: scale(0);
+                        }
+                        @keyframes scaleIn {
+                            0% { transform: scale(0); }
+                            70% { transform: scale(1.2); }
+                            100% { transform: scale(1); }
+                        }
+                    </style>
+                </div>
+            `;
+            modal.querySelector('.modal-footer').innerHTML = `
+                <button type="button" class="btn btn-primary" onclick="location.reload()">Continue</button>
+            `;
+        } else {
+            // Show error message
+            sellButton.innerHTML = originalText;
+            sellButton.disabled = false;
+            
+            const modal = document.getElementById('sellConfirmModal');
+            modal.querySelector('.modal-body').innerHTML += `
+                <div class="alert alert-danger mt-3" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    Something went wrong. Please try again.
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        sellButton.innerHTML = originalText;
+        sellButton.disabled = false;
+        console.error("Error:", error);
+    });
+}
+
+// Add a subtle parallax effect to the NFT image on mouse movement
+document.addEventListener('DOMContentLoaded', function() {
+    const imageContainer = document.querySelector('.nft-image-container');
+    
+    if (imageContainer) {
+        document.addEventListener('mousemove', function(e) {
+            if (window.innerWidth > 768) { // Only on desktop
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                
+                imageContainer.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            }
+        });
+        
+        // Reset transform when mouse leaves
+        document.addEventListener('mouseleave', function() {
+            imageContainer.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
+            imageContainer.style.transition = 'transform 0.5s ease';
+        });
+    }
+});
+</script>
+{% endblock %}

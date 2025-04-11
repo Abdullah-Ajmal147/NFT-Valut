@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Check Transaction - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Check Transaction Status</h2>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="mb-4">
+                        <div class="mb-3">
+                            <label for="transaction_hash" class="form-label">Transaction Hash</label>
+                            <input type="text" class="form-control" id="transaction_hash" name="transaction_hash" value="{{ request.GET.transaction_hash }}" placeholder="Enter transaction hash">
+                            <div class="form-text">Enter the transaction hash to check its status.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Check Status</button>
+                    </form>
+
+                    {% if transaction %}
+                        <div class="alert {% if transaction.status == 'completed' %}alert-success{% elif transaction.status == 'pending' %}alert-warning{% else %}alert-danger{% endif %}">
+                            <h5 class="alert-heading">Transaction Status</h5>
+                            <p class="mb-0">{{ transaction.get_status_display }}</p>
+                        </div>
+
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Transaction Details</h5>
+                                <ul class="list-unstyled mb-0">
+                                    <li><strong>Transaction ID:</strong> {{ transaction.id }}</li>
+                                    <li><strong>Type:</strong> {{ transaction.get_transaction_type_display }}</li>
+                                    <li><strong>Date:</strong> {{ transaction.created_at|date:"F j, Y H:i" }}</li>
+                                    <li><strong>NFT:</strong> {{ transaction.nft.name }}</li>
+                                    <li><strong>Price:</strong> {{ transaction.price }} ETH</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'marketplace:transaction_detail' transaction.pk %}" class="btn btn-primary">View Full Details</a>
+                        </div>
+                    {% elif request.GET.transaction_hash %}
+                        <div class="alert alert-warning">
+                            <h5 class="alert-heading">Transaction Not Found</h5>
+                            <p class="mb-0">No transaction found with the provided hash.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

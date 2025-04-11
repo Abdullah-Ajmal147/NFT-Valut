@@ -1,0 +1,541 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load nft_filters %}
+
+{% block title %}My NFT Collection - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="padding-top: 0.1rem!important" >
+    <div class="row">
+        <!-- Left Sidebar with Portfolio Summary -->
+        <div class="col-lg-3 mb-4">
+            <div class="sticky-top pt-3">
+                <div class="portfolio-summary bg-light rounded-4 shadow-sm p-4 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="summary-icon bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold">Portfolio Summary</h5>
+                    </div>
+                    
+                    {% if ownerships %}
+                    <div class="summary-stats">
+                        <div class="summary-item d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Total NFTs</span>
+                            <span class="fw-bold">{{ ownerships|length }}</span>
+                        </div>
+                        <div class="summary-item d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Total Value</span>
+                            <span class="fw-bold text-success">{{ total_value|default:"0"|format_crypto }} USDT</span>
+                        </div>
+                        <div class="summary-item d-flex justify-content-between py-2">
+                            <span class="text-muted">Rarest NFT</span>
+                            <span class="fw-bold text-primary">{{ rarest_nft|default:"None" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="portfolio-chart mt-4">
+                        <h6 class="text-muted mb-3 small">Value Distribution</h6>
+                        <div class="chart-placeholder rounded-3 bg-primary bg-opacity-10 p-3 text-center">
+                            <i class="bi bi-pie-chart-fill text-primary fs-3 mb-2"></i>
+                            <p class="small mb-0">Portfolio analytics visualization</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-portfolio p-3 text-center bg-light rounded-3">
+                        <i class="bi bi-collection fs-3 text-muted mb-2"></i>
+                        <p class="small mb-0">Your portfolio will appear here once you acquire NFTs.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="quick-actions bg-light rounded-4 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'marketplace:marketplace' %}" class="btn btn-primary text-white">
+                            <i class="bi bi-shop me-2"></i> Browse Marketplace
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="bi bi-lightning-charge me-2"></i> Get Featured NFTs
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-gear me-2"></i> Collection Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="fw-bold text-gradient">My NFT Collection</h1>
+                <div class="collection-stats">
+                    {% if ownerships %}
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3">
+                        <i class="bi bi-collection me-1"></i> {{ ownerships|length }} NFT{% if ownerships|length != 1 %}s{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if ownerships %}
+                    <!-- Filters and Sort Options -->
+                    <div class="filters-bar bg-light rounded-4 shadow-sm p-3 mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0" placeholder="Search your collection..." id="searchCollection">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-md-end">
+                                    <div class="btn-group me-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm active">
+                                            <i class="bi bi-grid-3x3-gap"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-list"></i>
+                                        </button>
+                                    </div>
+                                    <select class="form-select form-select-sm" style="max-width: 150px;">
+                                        <option selected>Sort By</option>
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="value_high">Highest Value</option>
+                                        <option value="value_low">Lowest Value</option>
+                                        <option value="rarity">Rarity</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NFT Grid -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="nft-collection">
+                        {% for ownership in ownerships %}
+                            <div class="col nft-item">
+                                <div class="card h-100 border-0 rounded-4 shadow-sm hover-card">
+                                    <div class="nft-image-container position-relative overflow-hidden rounded-top-4">
+                                        <img src="{{ ownership.nft.image.url }}" class="card-img-top w-100 object-fit-cover" alt="{{ ownership.nft.name }}">
+                                        <div class="nft-overlay d-flex align-items-end p-3">
+                                            <span class="badge bg-primary position-absolute top-0 start-0 m-3">{{ ownership.nft.get_rarity_level_display }}</span>
+                                            <span class="badge bg-dark bg-opacity-75 position-absolute top-0 end-0 m-3">
+                                                <i class="bi bi-box-seam me-1"></i> {{ ownership.quantity }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h5 class="card-title fw-bold mb-0">{{ ownership.nft.name }}</h5>
+                                            <span class="nft-id text-muted small">#{{ ownership.nft.id }}</span>
+                                        </div>
+                                        <p class="card-text text-muted small">{{ ownership.nft.description|truncatewords:12 }}</p>
+                                        
+                                        <div class="nft-details mt-3">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <div class="detail-item bg-light rounded-3 p-2 text-center">
+                                                        <span class="detail-label text-muted small d-block">Unit Price</span>
+                                                        <span class="detail-value fw-bold">{{ ownership.nft.price|format_crypto }} USDT</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="detail-item bg-light rounded-3 p-2 text-center">
+                                                        <span class="detail-label text-muted small d-block">Total Value</span>
+                                                        <span class="detail-value fw-bold text-success">{{ ownership.quantity|multiply:ownership.nft.price|format_crypto }} USDT</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="detail-item bg-light rounded-3 p-2 text-center">
+                                                        <span class="detail-label text-muted small d-block">Acquired</span>
+                                                        <span class="detail-value">{{ ownership.acquired_at|date:"F j, Y" }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 p-3 pt-0">
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{% url 'marketplace:nft_detail' ownership.nft.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-info-circle me-1"></i> Details
+                                            </a>
+                                            <a href="{% url 'marketplace:sell_nft' ownership.id %}" class="btn btn-success btn-sm">
+                                                <i class="bi bi-tag-fill me-1"></i> Sell
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Page navigation" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link rounded-pill" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="bi bi-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link rounded-pill">
+                                        <i class="bi bi-chevron-left"></i> Previous
+                                    </span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link rounded-pill">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link rounded-pill" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link rounded-pill" href="?page={{ page_obj.next_page_number }}">
+                                        Next <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link rounded-pill">
+                                        Next <i class="bi bi-chevron-right"></i>
+                                    </span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    
+                {% else %}
+                    <!-- Empty Collection State -->
+                    <div class="empty-state p-5 text-center bg-light rounded-4 shadow-sm">
+                        <div class="empty-state-icon mb-4">
+                            <div class="icon-container bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center p-4">
+                                <i class="bi bi-collection fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-3">Your Collection is Empty</h3>
+                        <p class="text-muted mb-4">You don't own any NFTs yet. Start building your digital art collection!</p>
+                        <a href="{% url 'marketplace:marketplace' %}" class="btn btn-primary btn-lg px-5">
+                            <i class="bi bi-shop me-2"></i> Explore Marketplace
+                        </a>
+                    </div>
+                    
+                    <!-- Featured NFTs Suggestion -->
+                    <div class="featured-suggestions mt-5">
+                        <h4 class="fw-bold mb-4">Suggested NFTs for You</h4>
+                        <div class="card border-0 rounded-4 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="suggestion-card text-center">
+                                            <div class="suggestion-image bg-light rounded-4 mb-3 p-3">
+                                                <i class="bi bi-image text-muted fs-1"></i>
+                                            </div>
+                                            <h6 class="fw-bold">Cyber Punk Collection</h6>
+                                            <p class="text-muted small">Starting at 25 USDT</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="suggestion-card text-center">
+                                            <div class="suggestion-image bg-light rounded-4 mb-3 p-3">
+                                                <i class="bi bi-image-alt text-muted fs-1"></i>
+                                            </div>
+                                            <h6 class="fw-bold">Digital Landscapes</h6>
+                                            <p class="text-muted small">Starting at 30 USDT</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="suggestion-card text-center">
+                                            <div class="suggestion-image bg-light rounded-4 mb-3 p-3">
+                                                <i class="bi bi-brush text-muted fs-1"></i>
+                                            </div>
+                                            <h6 class="fw-bold">Abstract Art Series</h6>
+                                            <p class="text-muted small">Starting at 15 USDT</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <!-- Login Prompt -->
+                <div class="login-prompt p-5 text-center bg-light rounded-4 shadow-sm">
+                    <div class="login-icon mb-4">
+                        <div class="icon-container bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center p-4">
+                            <i class="bi bi-person-lock fs-1 text-primary"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">Authentication Required</h3>
+                    <p class="text-muted mb-4">Please log in to view and manage your NFT collection.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg px-5">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                        </a>
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-primary btn-lg px-5">
+                            <i class="bi bi-person-plus me-2"></i> Register
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Text Gradient */
+.text-gradient {
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card Styling */
+.card {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* NFT Image Styling */
+.nft-image-container {
+    height: 220px;
+    position: relative;
+    background: linear-gradient(45deg, #f3f3f3, #e6e6e6);
+}
+
+.nft-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 50%);
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+/* Button Styles */
+.btn-primary {
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-outline-primary {
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.btn-outline-primary:hover {
+    background-color: #6366f1;
+    color: white;
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Pagination styling */
+.page-link {
+    color: #6366f1;
+    border: 1px solid #e2e8f0;
+    margin: 0 3px;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: #6366f1;
+    color: white;
+    border-color: #6366f1;
+}
+
+.page-item.active .page-link {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
+}
+
+/* Utility Classes */
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-top-4 {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+/* Sticky sidebar for desktop */
+@media (min-width: 992px) {
+    .sticky-top {
+        top: 2rem;
+        z-index: 1020;
+    }
+}
+
+/* Icons in containers */
+.summary-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+/* Empty state and login prompt styling */
+.empty-state, .login-prompt {
+    padding: 60px 20px;
+}
+
+.icon-container {
+    width: 100px;
+    height: 100px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .nft-image-container {
+        height: 180px;
+    }
+}
+</style>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation setup for cards and containers
+    const animateElements = document.querySelectorAll('.card, .empty-state, .login-prompt, .filters-bar, .portfolio-summary, .quick-actions');
+    
+    // Set initial styles for animation
+    animateElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    });
+    
+    // Create intersection observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Apply the visible styles directly with staggered delay
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    // Stop observing this element
+                    observer.unobserve(entry.target);
+                }, 100);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+    
+    // Start observing elements
+    animateElements.forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Search functionality for collection
+    const searchInput = document.getElementById('searchCollection');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const nftItems = document.querySelectorAll('.nft-item');
+            
+            nftItems.forEach(item => {
+                const nftName = item.querySelector('.card-title').textContent.toLowerCase();
+                const nftDesc = item.querySelector('.card-text').textContent.toLowerCase();
+                
+                if (nftName.includes(query) || nftDesc.includes(query)) {
+                    item.style.display = '';
+                    // Add subtle highlight animation
+                    item.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.02)' },
+                        { transform: 'scale(1)' }
+                    ], {
+                        duration: 300,
+                        easing: 'ease-in-out'
+                    });
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Initialize tooltips if Bootstrap is available
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+    
+    // Add hover effects for NFT cards
+    const nftCards = document.querySelectorAll('.hover-card');
+    nftCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const image = this.querySelector('.card-img-top');
+            if (image) {
+                image.style.transform = 'scale(1.05)';
+                image.style.transition = 'transform 0.5s ease';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const image = this.querySelector('.card-img-top');
+            if (image) {
+                image.style.transform = 'scale(1)';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,995 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Wallet - NFTVault{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<style>
+    :root {
+        --primary-color: #6366f1;
+        --primary-hover: #4f46e5;
+        --secondary-color: #8b5cf6;
+        --success-color: #10b981;
+        --success-hover: #059669;
+        --warning-color: #f59e0b;
+        --warning-hover: #d97706;
+        --danger-color: #ef4444;
+        --dark-color: #1e293b;
+        --text-color: #475569;
+        --text-muted: #64748b;
+        --light-gray: #f1f5f9;
+        --border-color: #e5e7eb;
+        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        --card-hover-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9fafb;
+        background-image: 
+            radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
+            radial-gradient(circle at 0% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 25%);
+        background-attachment: fixed;
+        color: var(--dark-color);
+    }
+
+    .wallet-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 60px 20px;
+    }
+
+    .page-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInDown 0.5s ease-out;
+    }
+
+    .card {
+        border: none;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        background: rgba(255, 255, 255, 0.95);
+        animation: fadeIn 0.6s ease-out;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .card:hover::before {
+        opacity: 1;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .card-header i {
+        font-size: 1.6rem;
+    }
+
+    .card-header h3 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 28px;
+    }
+
+    .wallet-info p {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .wallet-info strong {
+        color: var(--dark-color);
+        font-weight: 600;
+    }
+
+    .wallet-info span {
+        color: var(--text-muted);
+    }
+
+    .btn {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        padding: 14px 28px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        border: none;
+    }
+
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.3);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+        z-index: -1;
+    }
+
+    .btn:active::after {
+        animation: ripple 0.6s ease-out;
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(30, 30);
+            opacity: 0;
+        }
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-hover), var(--secondary-color));
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #34d399);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, var(--success-hover), #22c55e);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(135deg, var(--warning-hover), var(--warning-color));
+        box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .table {
+        background: white;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .table thead th {
+        background: var(--light-gray);
+        color: var(--dark-color);
+        font-weight: 600;
+        padding: 16px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .table tbody td {
+        padding: 16px;
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+
+    .table tbody tr:hover td {
+        background-color: rgba(241, 245, 249, 0.5);
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .bg-pending { 
+        background-color: var(--warning-color); 
+        color: white;
+    }
+    
+    .bg-completed { 
+        background-color: var(--success-color); 
+        color: white;
+    }
+    
+    .bg-failed { 
+        background-color: var(--danger-color); 
+        color: white;
+    }
+
+    a[href^="https://etherscan.io"] {
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    a[href^="https://etherscan.io"]:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    a[href^="https://etherscan.io"] i {
+        font-size: 0.8rem;
+    }
+
+    .no-transactions {
+        text-align: center;
+        padding: 60px 40px;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        background: rgba(241, 245, 249, 0.3);
+        border-radius: var(--radius-md);
+    }
+
+    .no-transactions i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .deposit-address {
+        background: var(--light-gray);
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        word-break: break-all;
+        position: relative;
+    }
+
+    .form-control, .form-select {
+        border-radius: var(--radius-md);
+        border: 2px solid var(--border-color);
+        padding: 14px;
+        font-size: 1rem;
+        background-color: #fcfcfc;
+        transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-control.is-invalid {
+        border-color: var(--danger-color);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 8px;
+    }
+
+    .balance-box {
+        background: linear-gradient(135deg, var(--light-gray), #e5e7eb);
+        padding: 24px;
+        border-radius: var(--radius-md);
+        margin-bottom: 24px;
+        transition: var(--transition);
+    }
+
+    .balance-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .balance-box h4 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .balance-box h4 i {
+        color: var(--primary-color);
+    }
+
+    .balance-box p {
+        margin-bottom: 0;
+    }
+
+    .balance-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .balance-usd {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-left: 8px;
+    }
+    
+    .modal-content {
+        border-radius: var(--radius-lg);
+        border: none;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 20px 28px;
+        border-bottom: none;
+    }
+
+    .modal-header h5 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+
+    .btn-close {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        padding: 8px;
+        opacity: 1;
+        transition: var(--transition);
+    }
+
+    .btn-close:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 28px;
+    }
+
+    .input-group .form-control {
+        border-right: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .copy-btn {
+        border-left: none;
+        background-color: #fcfcfc;
+        border: 2px solid var(--border-color);
+        border-left: none;
+        color: var(--text-color);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-top-right-radius: var(--radius-md);
+        border-bottom-right-radius: var(--radius-md);
+    }
+
+    .copy-btn:hover {
+        background-color: var(--light-gray);
+    }
+
+    .copy-btn.copied {
+        background-color: var(--success-color);
+        color: white;
+        border-color: var(--success-color);
+    }
+
+    .copy-btn.copied .copy-text {
+        display: none;
+    }
+
+    .copy-btn.copied::after {
+        content: "Copied!";
+        animation: fadeIn 0.3s;
+    }
+
+    .alert {
+        border-radius: var(--radius-md);
+        padding: 16px;
+        border: none;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+        margin-top: 2px;
+    }
+
+    .alert-info {
+        background-color: rgba(96, 165, 250, 0.1);
+        color: #3b82f6;
+    }
+
+    .alert-warning {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
+    }
+
+    .action-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .action-card .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex-grow: 1;
+        justify-content: center;
+    }
+
+    .wallet-action-btn {
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-size: 1.05rem;
+    }
+
+    .wallet-action-btn i {
+        font-size: 1.2rem;
+    }
+
+    /* Animation classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .slide-up {
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .wallet-container {
+            padding: 40px 15px;
+        }
+        
+        .card-header {
+            padding: 20px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .balance-box {
+            padding: 20px;
+        }
+        
+        .balance-value {
+            font-size: 1.5rem;
+        }
+        
+        .wallet-action-btn {
+            padding: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wallet-container" style="animation: fadeIn 0.5s ease-out;">
+    <h1 class="page-title">My Wallet</h1>
+
+    <div class="row g-4">
+        <!-- Wallet Balances -->
+        <div class="col-md-6">
+            <div class="card slide-up" style="animation-delay: 0.1s;">
+                <div class="card-header">
+                    <i class="fas fa-wallet"></i>
+                    <h3>Wallet Balances</h3>
+                </div>
+                <div class="card-body">
+                    <div class="balance-box">
+                        <h4><i class="fas fa-coins"></i>USDT Balance</h4>
+                        <p class="balance-value">{{ usdt_balance|floatformat:2 }} <span class="balance-usd">USDT</span></p>
+                    </div>
+                    <div class="balance-box">
+                        <h4><i class="fas fa-chart-line"></i>Total Commissions Earned</h4>
+                        <p class="balance-value">{{ total_commissions|floatformat:2 }} <span class="balance-usd">USDT ≈ ${{ commissions_usd_value|floatformat:2 }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Actions -->
+        <div class="col-md-6">
+            <div class="card action-card slide-up" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Wallet Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-primary wallet-action-btn" data-bs-toggle="modal" data-bs-target="#depositModal">
+                            <i class="fas fa-arrow-down"></i> Deposit Funds
+                        </button>
+                        <button type="button" class="btn btn-warning wallet-action-btn" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                            <i class="fas fa-arrow-up"></i> Withdraw Funds
+                        </button>
+                        <a href="{% url 'users:claim_commissions' %}" class="btn btn-success wallet-action-btn">
+                            <i class="fas fa-hand-holding-usd"></i> Claim Commissions
+                        </a>
+                        <a href="{% url 'users:profile_edit' %}" class="btn btn-primary wallet-action-btn">
+                            <i class="fas fa-user-edit"></i> Update Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card mt-5 slide-up" style="animation-delay: 0.3s;">
+        <div class="card-header">
+            <i class="fas fa-history"></i>
+            <h3>Transaction History</h3>
+        </div>
+        <div class="card-body">
+            {% if transactions %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Currency</th>
+                                <th>Status</th>
+                                <th>Transaction Hash</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr class="fade-in" style="animation-delay: {{ forloop.counter|floatformat:1 }}s;">
+
+                                <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    {% if transaction.transaction_type == 'DEPOSIT' %}
+                                        <span class="text-primary"><i class="fas fa-arrow-down me-2"></i></span>
+                                    {% elif transaction.transaction_type == 'WITHDRAWAL' %}
+                                        <span class="text-warning"><i class="fas fa-arrow-up me-2"></i></span>
+                                    {% elif transaction.transaction_type == 'COMMISSION' %}
+                                        <span class="text-success"><i class="fas fa-gem me-2"></i></span>
+                                    {% endif %}
+                                    {{ transaction.get_transaction_type_display }}
+                                </td>
+                                <td>{{ transaction.price|floatformat:2 }}</td>
+                                <td>{{ transaction.currency }}</td>
+                                <td>
+                                    <span class="badge bg-{% if transaction.status == 'PENDING' %}pending{% elif transaction.status == 'COMPLETED' %}completed{% else %}failed{% endif %}">
+                                        {{ transaction.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if transaction.transaction_hash %}
+                                        <a href="https://etherscan.io/tx/{{ transaction.transaction_hash }}" target="_blank">
+                                            {{ transaction.transaction_hash|truncatechars:10 }} <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="no-transactions fade-in">
+                    <i class="fas fa-receipt"></i>
+                    <p>No transactions found yet.</p>
+                    <p class="mt-2 small text-muted">Transactions will appear here once you make deposits or withdrawals.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+                <h5 class="modal-title" id="depositModalLabel"><i class="fas fa-arrow-down me-2"></i> Deposit Funds</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p class="text-muted mb-4">Send funds to the address below. Balances will update after confirmation (typically within 2 hours).</p>
+
+                <!-- Currency Selection -->
+                <div class="mb-4">
+                    <label for="depositCurrency" class="form-label">Currency</label>
+                    <select class="form-select" id="depositCurrency" name="currency" disabled>
+                        <option value="USDT" selected>USDT (Tron TRC-20)</option>
+                    </select>
+                </div>
+
+                <!-- Deposit Address -->
+                <div class="mb-4">
+                    <label class="form-label">USDT (TRC-20) Deposit Address</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ usdt_deposit_address|default:'Not generated yet' }}" readonly>
+                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('{{ usdt_deposit_address|default:'' }}', this)">
+                            <i class="fas fa-copy"></i> <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+                    
+                    <!-- QR Code (purely decorative) -->
+                    <div class="text-center mt-4">
+                        <div id="qrcode" style="display: inline-block; padding: 10px; background: white; border-radius: 8px;"></div>
+                    </div>
+                </div>
+
+                <!-- Alert -->
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Important:</strong> Only send USDT (TRC-20) to this address. Sending other tokens may result in permanent loss.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--warning-color), #fbbf24); color: white;">
+                <h5 class="modal-title" id="withdrawModalLabel"><i class="fas fa-arrow-up me-2"></i> Withdraw Funds</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'users:withdraw' %}" id="withdrawForm">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="withdrawAmount" class="form-label">Amount (USDT)</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" id="withdrawAmount" name="amount" placeholder="e.g., 10.5" required>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="form-text text-muted">Available: <span id="usdtBalance">{{ usdt_balance | floatformat:1 }}</span> USDT</small>
+                            <small class="form-text text-muted">Fee: 2 USDT</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="withdrawCurrency" class="form-label">Currency</label>
+                        <select class="form-select" id="withdrawCurrency" name="currency" required>
+                            <option value="USDT">USDT (Tron TRC-20)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="withdrawAddress" class="form-label">Destination Address</label>
+                        <input type="text" class="form-control" id="withdrawAddress" name="address" placeholder="Enter your TRC-20 wallet address" required>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Warning:</strong> Double-check the address before confirming. Withdrawals are irreversible.
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning w-100" id="withdrawButton">
+                        <i class="fas fa-paper-plane me-2"></i> Submit Withdrawal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/qrcode.js/qrcode.min.js"></script>
+<script>
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            let x = e.clientX - e.target.getBoundingClientRect().left;
+            let y = e.clientY - e.target.getBoundingClientRect().top;
+            
+            let ripple = document.createElement('span');
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Withdrawal form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('withdrawForm');
+        const amountInput = document.getElementById('withdrawAmount');
+        const usdtBalance = parseFloat(document.getElementById('usdtBalance').textContent);
+        const withdrawButton = document.getElementById('withdrawButton');
+        const addressInput = document.getElementById('withdrawAddress');
+
+        // Generate QR code for deposit address (if available)
+        if (typeof QRCode !== 'undefined') {
+            const depositAddress = '{{ usdt_deposit_address|default:"" }}';
+            if (depositAddress) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: depositAddress,
+                    width: 128,
+                    height: 128,
+                    colorDark: "#1e293b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        }
+
+        // Animated entrance for modals
+        ['depositModal', 'withdrawModal'].forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.addEventListener('shown.bs.modal', () => {
+                    const content = modal.querySelector('.modal-content');
+                    content.classList.add('animate__animated', 'animate__fadeInUp', 'animate__faster');
+                    
+                    setTimeout(() => {
+                        content.classList.remove('animate__animated', 'animate__fadeInUp', 'animate__faster');
+                    }, 500);
+                });
+            }
+        });
+
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const amount = parseFloat(amountInput.value);
+                const address = addressInput.value.trim();
+
+                // Check if amount exceeds available balance
+                if (amount > usdtBalance) {
+                    event.preventDefault();
+                    showToast('Error: Withdrawal amount cannot exceed available balance (' + usdtBalance + ' USDT).', 'error');
+                    amountInput.classList.add('is-invalid');
+                    return;
+                }
+                
+                // Basic address validation
+                if (address.length < 10) {
+                    event.preventDefault();
+                    showToast('Please enter a valid wallet address', 'error');
+                    addressInput.classList.add('is-invalid');
+                    return;
+                }
+
+                // Disable button and show processing state
+                withdrawButton.disabled = true;
+                withdrawButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+            });
+
+            // Real-time validation as user types
+            amountInput.addEventListener('input', function() {
+                const amount = parseFloat(amountInput.value);
+                if (amount > usdtBalance) {
+                    amountInput.classList.add('is-invalid');
+                    withdrawButton.disabled = true;
+                } else {
+                    amountInput.classList.remove('is-invalid');
+                    withdrawButton.disabled = false;
+                }
+            });
+            
+            addressInput.addEventListener('input', function() {
+                addressInput.classList.remove('is-invalid');
+            });
+        }
+    });
+
+    function copyToClipboard(text, button) {
+        if (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                button.classList.add('copied');
+                showToast('Address copied to clipboard', 'success');
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                }, 3000); // Reset after 3 seconds
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy address', 'error');
+            });
+        }
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.bottom = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Create toast
+        const toast = document.createElement('div');
+        toast.style.minWidth = '250px';
+        toast.style.margin = '10px';
+        toast.style.padding = '15px 20px';
+        toast.style.borderRadius = '8px';
+        toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.animation = 'slideUp 0.3s ease-out forwards';
+        toast.style.color = 'white';
+        
+        // Set background color based on type
+        if (type === 'success') {
+            toast.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+            toast.innerHTML = '<i class="fas fa-check-circle me-2"></i>';
+        } else if (type === 'error') {
+            toast.style.background = 'linear-gradient(135deg, #ef4444, #f87171)';
+            toast.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>';
+        } else {
+            toast.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            toast.innerHTML = '<i class="fas fa-info-circle me-2"></i>';
+        }
+        
+        toast.innerHTML += message;
+        
+        // Add to container
+        toastContainer.appendChild(toast);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 300);
+        }, 5000);
+    }
+    
+    // Add CSS for toast animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

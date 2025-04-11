@@ -1,0 +1,60 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Purchase Pending - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="fas fa-spinner fa-spin text-primary" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Purchase Pending</h2>
+                    <p class="lead mb-4">Your transaction is being processed on the blockchain.</p>
+                    
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">Transaction Status</h5>
+                        <p class="mb-0">Please wait while we confirm your transaction. This may take a few minutes.</p>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Transaction Details</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>NFT:</strong> {{ nft.name }}</li>
+                                <li><strong>Price:</strong> {{ nft.price }} ETH</li>
+                                <li><strong>Transaction Hash:</strong> {{ transaction.hash }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'marketplace:nft_detail' nft.pk %}" class="btn btn-primary">View NFT</a>
+                        <a href="{% url 'marketplace:nft_list' %}" class="btn btn-outline-primary">Browse More NFTs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Check transaction status every 30 seconds
+    setInterval(function() {
+        fetch('{% url "marketplace:check_transaction" transaction.pk %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = '{% url "marketplace:purchase_success" nft.pk %}';
+                } else if (data.status === 'error') {
+                    window.location.href = '{% url "marketplace:purchase_error" nft.pk %}';
+                }
+            });
+    }, 30000);
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,36 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete NFT - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Delete NFT</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if nft.image %}
+                            <img src="{{ nft.image.url }}" alt="{{ nft.name }}" class="img-thumbnail mb-3" style="max-height: 200px;">
+                        {% endif %}
+                        <h3>{{ nft.name }}</h3>
+                        <p class="text-muted">Are you sure you want to delete this NFT?</p>
+                        <p class="text-danger">This action cannot be undone.</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Delete NFT</button>
+                            <a href="{% url 'marketplace:nft_detail' nft.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

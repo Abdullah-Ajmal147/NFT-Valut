@@ -1,0 +1,818 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}NFTVault - Revolutionary NFT Trading & Rewards{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative text-center py-5">
+    <div class="container position-relative z-index-1">
+        <h1 class="hero-title fw-bold mb-4 animate__animated animate__fadeIn">Welcome to NFTVault</h1>
+        <p class="hero-subtitle mb-5 animate__animated animate__fadeIn" style="animation-delay: 0.3s;">
+            Trade NFTs & Earn Up to 45% Rewards
+        </p>
+        
+        <!-- Stats -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <div class="stats-grid animate__animated animate__fadeIn" style="animation-delay: 0.4s;">
+                    <div class="stat-card">
+                        <h3 class="counter mb-2">40%</h3>
+                        <p class="stat-label">APY Staking</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="counter mb-2">12%</h3>
+                        <p class="stat-label">Referral Bonus</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="counter mb-2">5%</h3>
+                        <p class="stat-label">Cashback</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        {% if not user.is_authenticated %}
+            <div class="cta-buttons animate__animated animate__fadeIn" style="animation-delay: 0.6s;">
+                <a href="{% url 'users:register' %}" class="btn btn-primary btn-lg me-3">Start Earning</a>
+                <a href="{% url 'users:login' %}" class="btn btn-outline btn-lg">Login</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Activity Ticker -->
+    <div class="activity-ticker mt-5 animate__animated animate__fadeIn" style="animation-delay: 0.8s;">
+        <div class="container">
+            <div class="ticker-container d-flex align-items-center">
+                <span class="live-dot me-3"></span>
+                <div class="ticker-wrapper">
+                    <div class="ticker-content">
+                        <!-- Hardcoded Activity Data -->
+                        <span class="ticker-item">
+                            <span class="amount">+0.5 ETH</span> earned by User123
+                        </span>
+                        <span class="ticker-item">
+                            <span class="amount">+1.2 ETH</span> earned by CryptoKing
+                        </span>
+                        <span class="ticker-item">
+                            <span class="amount">+0.8 ETH</span> earned by NFTLover
+                        </span>
+                        <span class="ticker-item">
+                            <span class="amount">+0.8 ETH</span> earned by NFTLover
+                        </span>
+                        <span class="ticker-item">
+                            <span class="amount">+0.8 ETH</span> earned by NFTLover
+                        </span>
+                        <span class="ticker-item">
+                            <span class="amount">+0.8 ETH</span> earned by NFTLover
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reward Tiers Section -->
+<section class="reward-tiers py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Exclusive Reward Tiers</h2>
+        <div class="row g-4">
+            <!-- Hardcoded Tiers -->
+            <div class="col-12 col-md-4">
+                <div class="card tier-card silver h-100">
+                    <div class="card-body text-center">
+                        <div class="tier-icon mb-4">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h3 class="card-title mb-4">Silver Tier</h3>
+                        <ul class="list-unstyled tier-benefits mb-4">
+                            <li><i class="fas fa-check-circle me-2"></i> 2% Cashback</li>
+                            <li><i class="fas fa-check-circle me-2"></i> 5% APY Staking</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Regular NFT Drops</li>
+                        </ul>
+                        <div class="requirement">Required: 70 USDT Volume</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card tier-card gold h-100">
+                    <span class="ribbon">Most Popular</span>
+                    <div class="card-body text-center">
+                        <div class="tier-icon mb-4">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="card-title mb-4">Gold Tier</h3>
+                        <ul class="list-unstyled tier-benefits mb-4">
+                            <li><i class="fas fa-check-circle me-2"></i> 3.5% Cashback</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Reduced Fees</li>
+                            <li><i class="fas fa-check-circle me-2"></i> 8% APY Staking</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Priority NFT Access</li>
+                        </ul>
+                        <div class="requirement">Required: 150 USDT Volume</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card tier-card diamond h-100">
+                    <div class="card-body text-center">
+                        <div class="tier-icon mb-4">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3 class="card-title mb-4">Diamond Tier</h3>
+                        <ul class="list-unstyled tier-benefits mb-4">
+                            <li><i class="fas fa-check-circle me-2"></i> 5% Cashback</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Zero Fees</li>
+                            <li><i class="fas fa-check-circle me-2"></i> VIP Support</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Exclusive NFTs</li>
+                            <li><i class="fas fa-check-circle me-2"></i> 12% APY Staking</li>
+                        </ul>
+                        <div class="requirement">Required: 250 USDT Volume</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured NFTs Section -->
+<section class="featured-nfts py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h2 class="section-title">Featured NFTs</h2>
+            <a href="{% url 'marketplace:marketplace' %}" class="btn btn-outline btn-with-icon">
+                Explore Marketplace 
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            {% if nfts %}
+                {% for nft in nfts %}
+                    <div class="col-md-4">
+                        <div class="card nft-card h-100">
+                            <div class="nft-image-container">
+                                <img src="{{ nft.image.url|default:'/static/images/default-nft.png' }}" 
+                                     class="card-img-top" 
+                                     alt="{{ nft.name }}">
+                                <div class="nft-overlay">
+                                    <a href="{% url 'marketplace:nft_detail' nft.id %}" class="btn btn-light btn-sm">View Details</a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">{{ nft.name }}</h5>
+                                <p class="card-text">{{ nft.description|truncatewords:20 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="nft-price">{{ nft.price| floatformat:1}} USDT</span>
+                                    <a href="{% url 'marketplace:nft_detail' nft.id %}" 
+                                       class="btn btn-primary btn-sm">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <div class="empty-state">
+                        <i class="fas fa-image empty-icon mb-3"></i>
+                        <p>No NFTs available at the moment.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Enhanced Styles for NFTVault */
+
+    /* Import modern fonts - adding variable font for better performance */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    :root {
+      /* Modern color palette */
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #93c5fd;
+      --secondary: #10b981;
+      --accent: #8b5cf6;
+      --dark: #0f172a;
+      --gray-dark: #334155;
+      --gray: #64748b;
+      --gray-light: #cbd5e1;
+      --light: #f8fafc;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, var(--primary), var(--accent));
+      --gradient-silver: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+      --gradient-gold: linear-gradient(135deg, #fef08a, #facc15);
+      --gradient-diamond: linear-gradient(135deg, #bfdbfe, #60a5fa);
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.04);
+      
+      /* Animation speeds */
+      --transition-fast: 150ms ease;
+      --transition-normal: 250ms ease;
+      --transition-slow: 350ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    /* Base Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light);
+      color: var(--gray-dark);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .section-title {
+      font-weight: 800;
+      color: var(--dark);
+      font-size: 2.25rem;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-subtitle {
+      color: var(--gray);
+      font-size: 1.125rem;
+      font-weight: 500;
+      max-width: 650px;
+      margin-bottom: 3rem;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+      background: radial-gradient(circle at 70% 50%, rgba(219, 234, 254, 0.3) 0%, rgba(255, 255, 255, 0) 70%),
+                  radial-gradient(circle at 30% 70%, rgba(216, 180, 254, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, rgba(59, 130, 246, 0) 70%);
+      z-index: 0;
+    }
+    
+    .hero-title {
+      font-size: 3.75rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--gray);
+      font-weight: 500;
+      max-width: 650px;
+      margin: 0 auto 3.5rem;
+      line-height: 1.6;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+      margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 2rem 1.5rem;
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      transition: all var(--transition-slow);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .stat-card .counter {
+      font-size: 2.75rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+    
+    .stat-card .stat-label {
+      color: var(--gray);
+      font-weight: 500;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    
+    /* Buttons */
+    .btn {
+      border-radius: 16px;
+      font-weight: 600;
+      transition: all var(--transition-normal);
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+    }
+    
+    .btn-lg {
+      padding: 1rem 2.5rem;
+      font-size: 1.125rem;
+    }
+    
+    .btn-primary {
+      background: var(--gradient-primary);
+      border: none;
+      color: white;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      box-shadow: 0 15px 25px rgba(59, 130, 246, 0.4);
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+    }
+    
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+      border: 2px solid var(--primary-light);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover, .btn-outline:focus {
+      background: rgba(59, 130, 246, 0.08);
+      transform: translateY(-3px);
+      border-color: var(--primary);
+    }
+    
+    .btn-with-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+    
+    /* Activity Ticker */
+    .activity-ticker {
+      margin-top: 4rem;
+    }
+    
+    .ticker-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1.25rem 1.75rem;
+      border-radius: 20px;
+      min-height: 70px;
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .live-dot {
+      width: 12px;
+      height: 12px;
+      background-color: var(--secondary);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    
+    .ticker-wrapper {
+      overflow: hidden;
+      flex-grow: 1;
+    }
+    
+    .ticker-content {
+      display: inline-flex;
+      animation: ticker 30s linear infinite;
+      will-change: transform;
+    }
+    
+    .ticker-item {
+      padding: 0 40px;
+      white-space: nowrap;
+      color: var(--gray-dark);
+      font-weight: 600;
+    }
+    
+    .ticker-item .amount {
+      color: var(--secondary);
+      font-weight: 700;
+    }
+    
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+    
+    /* Reward Tiers Section */
+    .reward-tiers {
+      background: white;
+      padding: 100px 0;
+      position: relative;
+    }
+    
+    .reward-tiers::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 0),
+        radial-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 0);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      opacity: 0.7;
+      z-index: 0;
+    }
+    
+    /* Tier Cards */
+    .tier-card {
+      border-radius: 28px;
+      border: none;
+      overflow: hidden;
+      transition: all var(--transition-slow);
+      transform-style: preserve-3d;
+      position: relative;
+      z-index: 1;
+      height: 100%;
+    }
+    
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      z-index: -1;
+      transition: all var(--transition-normal);
+      opacity: 0.95;
+    }
+    
+    .tier-card:hover {
+      transform: translateY(-12px) rotateX(5deg);
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .tier-card:hover::before {
+      opacity: 1;
+    }
+    
+    .silver { 
+      background: var(--gradient-silver);
+      box-shadow: 0 15px 30px rgba(226, 232, 240, 0.5);
+    }
+    
+    .gold { 
+      background: var(--gradient-gold);
+      box-shadow: 0 15px 30px rgba(253, 224, 71, 0.3);
+    }
+    
+    .diamond { 
+      background: var(--gradient-diamond);
+      box-shadow: 0 15px 30px rgba(147, 197, 253, 0.3);
+    }
+    
+    .tier-icon {
+      font-size: 2.75rem;
+      width: 90px;
+      height: 90px;
+      line-height: 90px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      transition: all var(--transition-normal);
+    }
+    
+    .tier-card:hover .tier-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .silver .tier-icon { color: var(--gray-dark); }
+    .gold .tier-icon { color: var(--warning); }
+    .diamond .tier-icon { color: var(--primary-dark); }
+    
+    .tier-card .card-title {
+      font-weight: 800;
+      color: var(--dark);
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tier-benefits {
+      margin-bottom: 2rem;
+    }
+    
+    .tier-benefits li {
+      padding: 0.625rem 0;
+      color: var(--gray-dark);
+      font-weight: 500;
+      font-size: 1.075rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .tier-benefits li i {
+      color: var(--secondary);
+      font-size: 1.125rem;
+    }
+    
+    .requirement {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--gray-dark);
+      font-size: 0.95rem;
+    }
+    
+    .ribbon {
+      position: absolute;
+      top: 20px;
+      right: -45px;
+      transform: rotate(45deg);
+      background: var(--danger);
+      color: white;
+      padding: 7px 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 10;
+      box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+      letter-spacing: 0.03em;
+    }
+    
+    /* Featured NFTs Section */
+    .featured-nfts {
+      background-color: var(--light);
+      padding: 100px 0;
+    }
+    
+    .featured-nfts .container {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* NFT Cards */
+    .nft-card {
+      border: none;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all var(--transition-slow);
+      box-shadow: var(--shadow-md);
+      background: white;
+      height: 100%;
+    }
+    
+    .nft-card:hover {
+      transform: translateY(-12px);
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .nft-image-container {
+      position: relative;
+      overflow: hidden;
+      height: 280px;
+    }
+    
+    .nft-card img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    .nft-card:hover img {
+      transform: scale(1.08);
+    }
+    
+    .nft-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all var(--transition-normal);
+    }
+    
+    .nft-card:hover .nft-overlay {
+      opacity: 1;
+    }
+    
+    .nft-overlay .btn {
+      transform: translateY(20px);
+      transition: all var(--transition-slow);
+      opacity: 0;
+    }
+    
+    .nft-card:hover .nft-overlay .btn {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .nft-card .card-body {
+      padding: 1.75rem;
+    }
+    
+    .nft-card .card-title {
+      color: var(--dark);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .nft-card .card-text {
+      color: var(--gray);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    .nft-price {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      background: var(--light);
+      border-radius: 24px;
+      border: 2px dashed var(--gray-light);
+    }
+    
+    .empty-icon {
+      font-size: 3.5rem;
+      color: var(--gray-light);
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Glassmorphism Elements */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    /* Animations */
+    .animate__animated.animate__fadeIn {
+      animation-duration: 1s;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1199px) {
+      .hero-title {
+        font-size: 3.25rem;
+      }
+      
+      .stat-card .counter {
+        font-size: 2.25rem;
+      }
+    }
+    
+    @media (max-width: 991px) {
+      .hero-title {
+        font-size: 2.75rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+      }
+      
+      .stat-card {
+        padding: 1.5rem 1rem;
+      }
+      
+      .stat-card .counter {
+        font-size: 2rem;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .hero-section {
+        padding-top: 80px;
+        padding-bottom: 60px;
+      }
+      
+      .hero-title {
+        font-size: 2.25rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(1, 1fr);
+        max-width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 1rem;
+      }
+      
+      .section-title {
+        font-size: 1.75rem;
+      }
+    }
+    
+    @media (max-width: 575px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      
+      .ticker-item {
+        padding: 0 20px;
+        font-size: 0.9rem;
+      }
+      
+      .nft-image-container {
+        height: 220px;
+      }
+      
+      .btn {
+        padding: 0.75rem 1.5rem;
+      }
+      
+      .btn-lg {
+        padding: 0.875rem 2rem;
+      }
+    }
+</style>
+{% endblock %}

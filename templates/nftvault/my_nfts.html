@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>My NFTs</h1>
+    
+    <div class="row">
+        {% for ownership in ownerships %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{ ownership.nft.image.url }}" class="card-img-top" alt="{{ ownership.nft.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ ownership.nft.name }}</h5>
+                    <p class="card-text">{{ ownership.nft.description }}</p>
+                    <p>Purchased on: {{ ownership.purchase_date|date }}</p>
+                    <p>Purchase price: ${{ ownership.purchase_price }}</p>
+                    
+                    {% if not ownership.is_staked %}
+                    <a href="{% url 'nftvault:stake_nft' ownership.id %}" class="btn btn-primary">Stake this NFT</a>
+                    {% else %}
+                    <p class="text-info">Currently staked</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>You don't own any NFTs yet.</p>
+            <a href="{% url 'nftvault:marketplace' %}" class="btn btn-primary">Browse Marketplace</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

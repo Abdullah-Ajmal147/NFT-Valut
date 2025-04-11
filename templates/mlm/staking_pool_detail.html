@@ -1,0 +1,802 @@
+{% extends 'base/base.html' %}
+{% block title %}{{ pool.name }} - Staking Pool{% endblock %}
+
+<!-- Add this to your template's extra_head block, after your existing CSS -->
+<style>
+    /* Core UI Enhancements */
+    :root {
+      --primary: #6C5CE7;
+      --primary-light: #A29BFE;
+      --secondary: #00B894;
+      --dark: #2D3436;
+      --light: #F7FAFC;
+      --danger: #FF7675;
+      --warning: #FDCB6E;
+      --card-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+      --gradient: linear-gradient(135deg, #6C5CE7, #5758BB, #4834d4);
+      --gradient-hover: linear-gradient(135deg, #5649c0, #4834d4, #3721b0);
+    }
+    
+    /* Override global styles with important declarations */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      background-color: #F0F4F8 !important;
+      color: #2D3748 !important;
+    }
+    
+    /* Cards enhancement */
+    .custom-card {
+      border-radius: 16px !important;
+      border: none !important;
+      box-shadow: var(--card-shadow) !important;
+      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+      overflow: hidden !important;
+      animation: fadeIn 0.6s ease-out forwards !important;
+    }
+    
+    .custom-card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 12px 32px rgba(149, 157, 165, 0.3) !important;
+    }
+    
+    .custom-card-header {
+      background: var(--gradient) !important;
+      color: white !important;
+      border-top-left-radius: 16px !important;
+      border-top-right-radius: 16px !important;
+      padding: 1.5rem !important;
+      border-bottom: none !important;
+    }
+    
+    /* Stat cards */
+    .stat-card {
+      padding: 1.25rem !important;
+      border-radius: 12px !important;
+      margin-bottom: 1rem !important;
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      box-shadow: var(--card-shadow) !important;
+      transition: all 0.3s ease !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 12px 24px rgba(149, 157, 165, 0.3) !important;
+      border-color: var(--primary-light) !important;
+    }
+    
+    .stat-card:nth-child(1) { animation: fadeIn 0.4s ease-out forwards !important; }
+    .stat-card:nth-child(2) { animation: fadeIn 0.6s ease-out forwards !important; }
+    .stat-card:nth-child(3) { animation: fadeIn 0.8s ease-out forwards !important; }
+    
+    .stat-value {
+      font-size: 1.8rem !important;
+      font-weight: 700 !important;
+      color: var(--primary) !important;
+      margin-bottom: 0.25rem !important;
+      line-height: 1.2 !important;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem !important;
+      color: #718096 !important;
+      margin-bottom: 0 !important;
+    }
+    
+    /* Button styles */
+    .btn-custom-primary {
+      background: var(--gradient) !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 0.7rem 1.7rem !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      position: relative !important;
+      overflow: hidden !important;
+      z-index: 1 !important;
+    }
+    
+    .btn-custom-primary:before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: var(--gradient-hover) !important;
+      opacity: 0 !important;
+      transition: opacity 0.3s ease !important;
+      z-index: -1 !important;
+    }
+    
+    .btn-custom-primary:hover:before {
+      opacity: 1 !important;
+    }
+    
+    .btn-custom-primary:hover {
+      box-shadow: 0 7px 14px rgba(108, 92, 231, 0.4) !important;
+      transform: translateY(-3px) !important;
+    }
+    
+    /* Pool details */
+    .pool-detail-item {
+      display: flex !important;
+      align-items: center !important;
+      margin-bottom: 1rem !important;
+      transition: transform 0.2s ease !important;
+    }
+    
+    .pool-detail-item:hover {
+      transform: translateX(5px) !important;
+    }
+    
+    .pool-detail-icon {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      background: var(--primary-light) !important;
+      color: white !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-right: 1rem !important;
+      transition: transform 0.3s ease !important;
+    }
+    
+    .pool-detail-item:hover .pool-detail-icon {
+      transform: scale(1.15) rotate(5deg) !important;
+      background: var(--primary) !important;
+    }
+    
+    /* Form styles */
+    .stake-form {
+      background: rgba(108, 92, 231, 0.05) !important;
+      border-radius: 12px !important;
+      padding: 1.5rem !important;
+      border-left: 4px solid var(--primary) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .stake-form:hover {
+      background: rgba(108, 92, 231, 0.08) !important;
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.1) !important;
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px !important;
+      padding: 0.75rem 1rem !important;
+      border: 1px solid #E2E8F0 !important;
+      background-color: #F8FAFC !important;
+      transition: all 0.2s ease !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-light) !important;
+      box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.25) !important;
+      transform: translateY(-2px) !important;
+    }
+    
+    /* Status badges */
+    .badge-custom-success {
+      background-color: #D5F5E3 !important;
+      color: #27AE60 !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 1rem !important;
+      border-radius: 50px !important;
+      animation: pulse-green 2s infinite !important;
+    }
+    
+    .badge-custom-danger {
+      background-color: #FDEDEC !important;
+      color: #E74C3C !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 1rem !important;
+      border-radius: 50px !important;
+    }
+    
+    /* Activity items */
+    .stake-item {
+      border-radius: 10px !important;
+      border: 1px solid #E2E8F0 !important;
+      padding: 1rem !important;
+      margin-bottom: 0.75rem !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .stake-item:hover {
+      border-color: var(--primary-light) !important;
+      background-color: rgba(162, 155, 254, 0.05) !important;
+      transform: translateX(5px) !important;
+    }
+    
+    /* Progress bar */
+    .progress {
+      height: 10px !important;
+      border-radius: 5px !important;
+      background-color: #EDF2F7 !important;
+      overflow: hidden !important;
+    }
+    
+    .progress-bar {
+      background: var(--gradient) !important;
+      transition: width 1.5s ease-in-out !important;
+      background-size: 200% !important;
+      background-image: linear-gradient(45deg, var(--primary) 25%, var(--primary-light) 50%, var(--primary) 75%) !important;
+      animation: progressAnimation 3s linear infinite !important;
+    }
+    
+    /* Table styles */
+    table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+    }
+    
+    table th {
+      background-color: #F8FAFC !important;
+      font-weight: 600 !important;
+      color: #4A5568 !important;
+      padding: 1rem !important;
+    }
+    
+    table td {
+      padding: 1rem !important;
+      vertical-align: middle !important;
+      transition: background-color 0.2s ease !important;
+    }
+    
+    table tr:hover td {
+      background-color: rgba(162, 155, 254, 0.05) !important;
+    }
+    
+    .table-responsive {
+      border-radius: 12px !important;
+      box-shadow: var(--card-shadow) !important;
+      overflow: hidden !important;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+    }
+    
+    @keyframes progressAnimation {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    /* Ripple effect for buttons */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.7);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .custom-card-header {
+        text-align: center !important;
+        padding: 1.2rem !important;
+      }
+      
+      .stat-card {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .stat-value {
+        font-size: 1.5rem !important;
+      }
+      
+      .pool-detail-item {
+        margin-bottom: 1.5rem !important;
+      }
+      
+      .table td, .table th {
+        padding: 0.75rem !important;
+      }
+      
+      .btn-custom-primary {
+        width: 100% !important;
+        margin-top: 1rem !important;
+      }
+    }
+  </style>
+
+{% block content %}
+<div class="container py-5"style="padding-top : 0.1rem !important;">
+    <!-- Pool Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-gradient">{{ pool.name }}</h1>
+            <p class="lead text-muted">{{ pool.description }}</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            {% if pool.is_active %}
+                <div class="badge-custom-success">
+                    <i class="fas fa-circle-check me-1"></i> Active Pool
+                </div>
+            {% else %}
+                <div class="badge-custom-danger">
+                    <i class="fas fa-circle-xmark me-1"></i> Inactive Pool
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Key Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="stat-value">{{ total_value_locked }} ETH</p>
+                        <p class="stat-label">Total Value Locked</p>
+                    </div>
+                    <div class="pool-detail-icon fs-4">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="stat-value">{{ pool.reward_rate }}%</p>
+                        <p class="stat-label">APY Reward Rate</p>
+                    </div>
+                    <div class="pool-detail-icon fs-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="stat-value">{{ active_stakers }}</p>
+                        <p class="stat-label">Active Stakers</p>
+                    </div>
+                    <div class="pool-detail-icon fs-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Pool Details Card -->
+            <div class="custom-card mb-4">
+                <div class="custom-card-header">
+                    <h4 class="mb-0">Pool Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="pool-detail-item">
+                                <div class="pool-detail-icon">
+                                    <i class="fas fa-calendar-days"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-0">Minimum Stake Period</p>
+                                    <h5 class="mb-0">{{ pool.minimum_stake_period }} days</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pool-detail-item">
+                                <div class="pool-detail-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-0">Minimum Stake Amount</p>
+                                    <h5 class="mb-0">{{ pool.minimum_stake_amount }} ETH</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pool-detail-item">
+                                <div class="pool-detail-icon">
+                                    <i class="fas fa-percent"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-0">Reward Distribution</p>
+                                    <h5 class="mb-0">Daily Compounding</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pool-detail-item">
+                                <div class="pool-detail-icon">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-0">Total Stakes</p>
+                                    <h5 class="mb-0">{{ total_stakes }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Staking Form -->
+                    {% if user.is_authenticated and pool.is_active %}
+                        <div class="stake-form mt-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-lock-open me-2"></i>
+                                Stake Your NFT
+                            </h5>
+                            <form method="post" action="{% url 'mlm:stake_nft' pool.id %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nft" class="form-label fw-medium">Select NFT</label>
+                                        <select class="form-select shadow-sm" id="nft" name="nft_id" required>
+                                            <option value="">Choose an NFT...</option>
+                                            {% for nft in available_nfts %}
+                                                <option value="{{ nft.id }}">{{ nft.name }} (Value: {{ nft.price }} ETH)</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="stake_period" class="form-label fw-medium">Stake Period (days)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control shadow-sm" id="stake_period" name="stake_period" 
+                                                min="{{ pool.minimum_stake_period }}" value="{{ pool.minimum_stake_period }}" required>
+                                            <span class="input-group-text">days</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mt-2">
+                                    <div class="me-auto">
+                                        <p class="mb-0 small">
+                                            <i class="fas fa-circle-info text-primary me-1"></i>
+                                            Expected rewards: <span class="fw-bold" id="expectedRewards">--</span> ETH
+                                        </p>
+                                    </div>
+                                    <button type="submit" class="btn-custom-primary">
+                                        <i class="fas fa-lock me-2"></i>Stake NFT
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- User's Stakes Table -->
+            {% if user.is_authenticated and user_stakes %}
+                <div class="custom-card">
+                    <div class="custom-card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Your Stakes</h4>
+                        <span class="badge bg-white text-primary">{{ user_stakes|length }} active stakes</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>NFT</th>
+                                        <th>Staked On</th>
+                                        <th>Unlock Date</th>
+                                        <th>Progress</th>
+                                        <th>Rewards</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stake in user_stakes %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-light rounded p-2 me-2">
+                                                        <i class="fas fa-image text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ stake.nft.name }}</h6>
+                                                        <small class="text-muted">{{ stake.nft.price }} ETH</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ stake.start_date|date:"M d, Y" }}</td>
+                                            <td>{{ stake.end_date|date:"M d, Y" }}</td>
+                                            <td style="width: 15%">
+                                                {% with progress=stake.progress %}
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" 
+                                                        aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <div class="text-end mt-1">
+                                                    <small class="text-muted">{{ progress }}%</small>
+                                                </div>
+                                                {% endwith %}
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold">{{ stake.rewards_earned }} ETH</span>
+                                            </td>
+                                            <td>
+                                                {% if stake.can_claim %}
+                                                    <form method="post" action="{% url 'mlm:claim_staking_rewards' stake.id %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-hand-holding-dollar me-1"></i> Claim
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <button class="btn btn-secondary btn-sm" disabled>
+                                                        <i class="fas fa-lock me-1"></i> Locked
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Recent Activity -->
+            <div class="custom-card mb-4">
+                <div class="custom-card-header">
+                    <h4 class="mb-0">Recent Activity</h4>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_stakes %}
+                        <div class="p-3">
+                            {% for stake in recent_stakes %}
+                                <div class="stake-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle p-2 me-3">
+                                            <i class="fas fa-user text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ stake.user.username }}</h6>
+                                            <p class="mb-0 small text-muted">Staked <strong>{{ stake.nft.name }}</strong></p>
+                                            <small class="text-muted">{{ stake.start_date|timesince }} ago</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <div class="avatar-lg mx-auto mb-3 bg-light rounded-circle p-3">
+                                <i class="fas fa-hourglass text-primary fs-3"></i>
+                            </div>
+                            <h5>No Stakes Yet</h5>
+                            <p class="text-muted">Be the first to stake in this pool!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Helpful Information Card -->
+            <div class="custom-card">
+                <div class="custom-card-header">
+                    <h4 class="mb-0">Staking Guide</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6><i class="fas fa-circle-question me-2 text-primary"></i> What is NFT Staking?</h6>
+                        <p class="text-muted small">NFT staking allows you to earn passive income by locking your NFTs for a specific period.</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6><i class="fas fa-circle-question me-2 text-primary"></i> How are rewards calculated?</h6>
+                        <p class="text-muted small">Rewards are calculated based on the NFT value, stake duration, and the pool's reward rate.</p>
+                    </div>
+                    <div>
+                        <h6><i class="fas fa-circle-question me-2 text-primary"></i> When can I claim rewards?</h6>
+                        <p class="text-muted small">Rewards can be claimed after the minimum stake period has been completed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add this script at the end of your template, just before closing body tag -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Original reward calculation functionality
+      const nftSelect = document.getElementById('nft');
+      const stakePeriodInput = document.getElementById('stake_period');
+      const expectedRewardsSpan = document.getElementById('expectedRewards');
+      const rewardRate = {{ pool.reward_rate }};
+      
+      function calculateExpectedRewards() {
+        if (nftSelect && nftSelect.value) {
+          const selectedOption = nftSelect.options[nftSelect.selectedIndex];
+          const nftValueMatch = selectedOption.text.match(/Value: ([\d.]+) ETH/);
+          if (nftValueMatch) {
+            const nftValue = parseFloat(nftValueMatch[1]);
+            const stakePeriod = parseInt(stakePeriodInput.value);
+            
+            // Basic calculation: value * rate * period / 365
+            const expectedRewards = (nftValue * (rewardRate / 100) * stakePeriod / 365).toFixed(4);
+            
+            // Animate the number change
+            animateValue(expectedRewardsSpan, parseFloat(expectedRewardsSpan.textContent.replace('--', '0')) || 0, expectedRewards, 500);
+          }
+        }
+      }
+      
+      // Number animation function
+      function animateValue(element, start, end, duration) {
+        if (!element) return;
+        
+        let startTimestamp = null;
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          const current = progress * (end - start) + start;
+          element.textContent = current.toFixed(4);
+          if (progress < 1) {
+            window.requestAnimationFrame(step);
+          }
+        };
+        window.requestAnimationFrame(step);
+      }
+      
+      // Add ripple effect to buttons
+      const buttons = document.querySelectorAll('.btn-custom-primary, .btn-success, .btn-secondary');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Prevent default only for demonstration buttons
+          if (this.classList.contains('demo-btn')) {
+            e.preventDefault();
+          }
+          
+          const x = e.clientX - this.getBoundingClientRect().left;
+          const y = e.clientY - this.getBoundingClientRect().top;
+          
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+      
+      // Set up event listeners for reward calculation
+      if(nftSelect && stakePeriodInput) {
+        nftSelect.addEventListener('change', calculateExpectedRewards);
+        stakePeriodInput.addEventListener('input', calculateExpectedRewards);
+        
+        // Add nice hover effect to dropdown
+        nftSelect.addEventListener('mouseover', function() {
+          this.style.borderColor = 'var(--primary-light)';
+        });
+        
+        nftSelect.addEventListener('mouseout', function() {
+          if (!this.matches(':focus')) {
+            this.style.borderColor = '#E2E8F0';
+          }
+        });
+      }
+      
+      // Animate progress bars on page load
+      const progressBars = document.querySelectorAll('.progress-bar');
+      progressBars.forEach(bar => {
+        const value = bar.getAttribute('aria-valuenow');
+        bar.style.width = '0%';
+        setTimeout(() => {
+          bar.style.width = value + '%';
+        }, 300);
+      });
+      
+      // Add hover effects to table rows
+      const tableRows = document.querySelectorAll('table tbody tr');
+      tableRows.forEach(row => {
+        row.addEventListener('mouseover', function() {
+          this.style.backgroundColor = 'rgba(108, 92, 231, 0.05)';
+        });
+        
+        row.addEventListener('mouseout', function() {
+          this.style.backgroundColor = '';
+        });
+      });
+      
+      // Add floating animation to icons
+      const icons = document.querySelectorAll('.pool-detail-icon');
+      icons.forEach(icon => {
+        icon.style.animation = 'float 3s ease-in-out infinite';
+      });
+      
+      // Form submission visual feedback
+      const stakingForm = document.querySelector('form[action*="stake_nft"]');
+      if (stakingForm) {
+        stakingForm.addEventListener('submit', function() {
+          const submitBtn = this.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            // Restore original text if something goes wrong with form submission
+            setTimeout(() => {
+              if (submitBtn.innerHTML.includes('Processing')) {
+                submitBtn.innerHTML = originalText;
+              }
+            }, 5000);
+          }
+        });
+      }
+      
+      // Add tooltip initializer if Bootstrap is available
+      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+          new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      }
+    });
+  
+    // Add this function to improve card animations on scroll
+    // Detect when elements become visible in viewport
+    function isElementInViewport(el) {
+      const rect = el.getBoundingClientRect();
+      return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+      );
+    }
+  
+    // Activate animations when scrolling
+    function handleScrollAnimations() {
+      const animElements = document.querySelectorAll('.custom-card, .stat-card');
+      
+      animElements.forEach(element => {
+        if (isElementInViewport(element) && !element.classList.contains('animated')) {
+          element.classList.add('animated');
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0)';
+        }
+      });
+    }
+  
+    // Initialize scroll animation
+    window.addEventListener('scroll', handleScrollAnimations);
+    window.addEventListener('load', handleScrollAnimations);
+  </script>
+{% endblock %}

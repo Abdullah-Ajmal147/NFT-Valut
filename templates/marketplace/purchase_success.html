@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Purchase Successful - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Purchase Successful!</h2>
+                    <p class="lead mb-4">You have successfully purchased the NFT.</p>
+                    
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Transaction Details</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>NFT:</strong> {{ nft.name }}</li>
+                                <li><strong>Price:</strong> {{ nft.price }} ETH</li>
+                                <li><strong>Transaction Hash:</strong> {{ transaction.hash }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'marketplace:nft_detail' nft.pk %}" class="btn btn-primary">View NFT</a>
+                        <a href="{% url 'marketplace:nft_list' %}" class="btn btn-outline-primary">Browse More NFTs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

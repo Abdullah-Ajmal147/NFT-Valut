@@ -1,0 +1,562 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Staking Pools - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Hero Section with Gradient Background -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 rounded-lg shadow overflow-hidden">
+                <div class="card-body p-5 bg-gradient-primary text-white">
+                    <h1 class="display-4 fw-bold mb-2">Staking Pools</h1>
+                    <p class="lead opacity-75 mb-4">Maximize your NFT value with our exclusive staking rewards system</p>
+                    
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'users:login' %}" class="btn btn-light btn-lg">Get Started <i class="fas fa-arrow-right ms-2"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 rounded-lg shadow h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-primary-subtle me-3">
+                                <i class="fas fa-chart-line text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Total Staked</h5>
+                        </div>
+                        <h3 class="fw-bold mb-0">
+                            {{ user_stakes|length }} NFTs
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 rounded-lg shadow h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-success-subtle me-3">
+                                <i class="fas fa-coins text-success"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Available Rewards</h5>
+                        </div>
+                        <h3 class="fw-bold mb-0">
+                            {% if user_rewards %}
+                            {{ user_rewards|floatformat:4 }} ETH
+                            {% else %}
+                            0.0000 ETH
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 rounded-lg shadow h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-info-subtle me-3">
+                                <i class="fas fa-users text-info"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Referral Network</h5>
+                        </div>
+                        <h3 class="fw-bold mb-0">
+                            {% if user_referrals %}
+                            {{ user_referrals }} users
+                            {% else %}
+                            0 users
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pool Categories Tabs -->
+        <div class="card border-0 rounded-lg shadow mb-5">
+            <div class="card-body p-0">
+                <ul class="nav nav-pills nav-fill p-3 bg-light rounded-top" id="stakingPoolTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-medium" id="all-pools-tab" data-bs-toggle="tab" data-bs-target="#all-pools" type="button" role="tab" aria-selected="true">All Pools</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-medium" id="featured-pools-tab" data-bs-toggle="tab" data-bs-target="#featured-pools" type="button" role="tab" aria-selected="false">Featured</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-medium" id="my-stakes-tab" data-bs-toggle="tab" data-bs-target="#my-stakes" type="button" role="tab" aria-selected="false">My Stakes</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content p-4" id="stakingPoolTabContent">
+                    <!-- All Pools Tab -->
+                    <div class="tab-pane fade show active" id="all-pools" role="tabpanel" aria-labelledby="all-pools-tab">
+                        <div class="row">
+                            {% if pools %}
+                                {% for pool in pools %}
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                                        <div class="card h-100 border-0 rounded-lg shadow-sm hover-scale">
+                                            <div class="card-img-overlay d-flex flex-column justify-content-between p-3" style="background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)); height: 180px;">
+                                                {% if pool.is_active %}
+                                                    <div class="badge bg-success mb-3 align-self-end">Active</div>
+                                                {% else %}
+                                                    <div class="badge bg-danger mb-3 align-self-end">Inactive</div>
+                                                {% endif %}
+                                                <h5 class="card-title text-white mb-0 fw-bold">{{ pool.name }}</h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <p class="card-text text-muted">{{ pool.description }}</p>
+                                                <div class="row text-center my-4">
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.reward_rate }}%</h5>
+                                                        <small class="text-muted">Reward Rate</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.minimum_stake_period }}</h5>
+                                                        <small class="text-muted">Min Days</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.minimum_stake_amount }}</h5>
+                                                        <small class="text-muted">Min ETH</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-white border-0 p-4 pt-0">
+                                                {% if pool.is_active %}
+                                                    <a href="{% url 'mlm:staking_pool_detail' pool.id %}" class="btn btn-primary w-100 rounded-pill">
+                                                        Stake Now <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <button class="btn btn-secondary w-100 rounded-pill" disabled>
+                                                        Coming Soon
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0 rounded-lg shadow-sm">
+                                        <i class="fas fa-info-circle me-2"></i> No staking pools available at the moment.
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Featured Pools Tab -->
+                    <div class="tab-pane fade" id="featured-pools" role="tabpanel" aria-labelledby="featured-pools-tab">
+                        <div class="row">
+                            {% for pool in pools %}
+                                {% if pool.is_featured %}
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                                        <!-- Same card structure as above but for featured pools only -->
+                                        <div class="card h-100 border-0 rounded-lg shadow-sm hover-scale">
+                                            <div class="ribbon ribbon-top-right"><span>Featured</span></div>
+                                            <!-- Rest of the card content same as above -->
+                                            <div class="card-img-overlay d-flex flex-column justify-content-between p-3" style="background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)); height: 180px;">
+                                                {% if pool.is_active %}
+                                                    <div class="badge bg-success mb-3 align-self-end">Active</div>
+                                                {% else %}
+                                                    <div class="badge bg-danger mb-3 align-self-end">Inactive</div>
+                                                {% endif %}
+                                                <h5 class="card-title text-white mb-0 fw-bold">{{ pool.name }}</h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <p class="card-text text-muted">{{ pool.description }}</p>
+                                                <div class="row text-center my-4">
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.reward_rate }}%</h5>
+                                                        <small class="text-muted">Reward Rate</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.minimum_stake_period }}</h5>
+                                                        <small class="text-muted">Min Days</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h5 class="fw-bold text-primary mb-0">{{ pool.minimum_stake_amount }}</h5>
+                                                        <small class="text-muted">Min ETH</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-white border-0 p-4 pt-0">
+                                                {% if pool.is_active %}
+                                                    <a href="{% url 'mlm:staking_pool_detail' pool.id %}" class="btn btn-primary w-100 rounded-pill">
+                                                        Stake Now <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <button class="btn btn-secondary w-100 rounded-pill" disabled>
+                                                        Coming Soon
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- My Stakes Tab -->
+                    <div class="tab-pane fade" id="my-stakes" role="tabpanel" aria-labelledby="my-stakes-tab">
+                        {% if user_stakes %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="py-3">NFT</th>
+                                            <th class="py-3">Pool</th>
+                                            <th class="py-3">Start Date</th>
+                                            <th class="py-3">End Date</th>
+                                            <th class="py-3">Status</th>
+                                            <th class="py-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for stake in user_stakes %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-sm me-3">
+                                                            <img src="{{ stake.nft.image_url|default:'https://via.placeholder.com/48' }}" alt="{{ stake.nft.name }}" class="img-fluid rounded">
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0">{{ stake.nft.name }}</h6>
+                                                            <small class="text-muted">#{{ stake.nft.token_id }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ stake.pool.name }}</td>
+                                                <td>{{ stake.start_date|date:"M d, Y" }}</td>
+                                                <td>{{ stake.end_date|date:"M d, Y" }}</td>
+                                                <td>
+                                                    {% if stake.is_active %}
+                                                        <span class="badge bg-success-subtle text-success">Active</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger-subtle text-danger">Completed</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if stake.can_claim %}
+                                                        <form method="post" action="{% url 'mlm:claim_staking_rewards' stake.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-success btn-sm rounded-pill">
+                                                                <i class="fas fa-gem me-1"></i> Claim Rewards
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        <span class="badge bg-warning-subtle text-warning px-3 py-2">
+                                                            <i class="fas fa-lock me-1"></i> Locked until {{ stake.end_date|date:"M d, Y" }}
+                                                        </span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <img src="{% static 'img/empty-stake.svg' %}" alt="No stakes yet" class="img-fluid mb-4" style="max-width: 200px;">
+                                <h5 class="text-muted mb-4">You don't have any active stakes</h5>
+                                <a href="#all-pools" class="btn btn-primary rounded-pill" data-bs-toggle="tab" data-bs-target="#all-pools">Browse Pools</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 rounded-lg shadow-sm mb-5">
+            <div class="card-body p-5 text-center">
+                <img src="{% static 'img/login-required.svg' %}" alt="Login Required" class="img-fluid mb-4" style="max-width: 250px;">
+                <h3 class="fw-bold mb-3">Authentication Required</h3>
+                <p class="text-muted mb-4">Please login to view and participate in our exclusive staking pools.</p>
+                <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg rounded-pill px-5">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login Now
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- How It Works Section with Animated Icons -->
+    <div class="card border-0 rounded-lg shadow mb-5">
+        <div class="card-header bg-gradient-secondary p-4">
+            <h3 class="mb-0 text-white">How Staking Works</h3>
+        </div>
+        <div class="card-body p-5">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="text-center">
+                        <div class="icon-lg bg-primary-subtle rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center animate-pulse">
+                            <i class="fas fa-lock fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">1. Lock Your NFTs</h4>
+                        <p class="text-muted">Select a staking pool that matches your goals and lock your valuable NFTs for a predetermined period to start earning rewards.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="text-center">
+                        <div class="icon-lg bg-success-subtle rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center animate-pulse">
+                            <i class="fas fa-coins fa-2x text-success"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">2. Earn Rewards</h4>
+                        <p class="text-muted">Watch your rewards accumulate over time based on the pool's reward rate, your stake amount, and duration.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="icon-lg bg-info-subtle rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center animate-pulse">
+                            <i class="fas fa-users fa-2x text-info"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">3. MLM Benefits</h4>
+                        <p class="text-muted">Amplify your earnings by inviting others to join. Earn additional rewards through our multi-level referral network.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ Accordion Section -->
+    <div class="card border-0 rounded-lg shadow mb-5">
+        <div class="card-header bg-light p-4">
+            <h3 class="mb-0">Frequently Asked Questions</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="accordion" id="stakingFAQ">
+                <div class="accordion-item border-0 mb-3">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed bg-light fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            What happens to my NFTs while they're staked?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#stakingFAQ">
+                        <div class="accordion-body">
+                            Your NFTs remain safely stored in our smart contract while staked. You retain ownership, but they are locked and cannot be transferred until the staking period ends. This security measure ensures the stability of our reward system.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item border-0 mb-3">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed bg-light fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How are rewards calculated and distributed?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#stakingFAQ">
+                        <div class="accordion-body">
+                            Rewards are calculated based on the pool's reward rate, your stake amount, and duration. For example, with a 5% reward rate and 1 ETH staked for 30 days, you'll earn approximately 0.00411 ETH (5% annualized). Rewards are distributed when you claim them after the staking period ends.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item border-0">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed bg-light fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            How does the MLM referral system work?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#stakingFAQ">
+                        <div class="accordion-body">
+                            Our MLM system offers rewards across multiple levels. You earn a percentage of the rewards generated by users you refer (level 1), as well as users they refer (level 2), and so on. Level 1 referrals provide a 5% commission, level 2 provides 3%, and level 3 provides 1%. Visit your referral dashboard for your unique link and detailed statistics.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="card border-0 rounded-lg shadow-lg mb-5 bg-gradient-primary text-white overflow-hidden">
+        <div class="card-body p-5">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <h2 class="fw-bold mb-3">Ready to maximize your NFT portfolio?</h2>
+                    <p class="lead mb-0">Join thousands of investors already earning passive income through our innovative staking system.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="#all-pools" class="btn btn-light btn-lg rounded-pill px-4" data-bs-toggle="tab" data-bs-target="#all-pools">
+                        Start Staking Now <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="position-absolute bottom-0 end-0 opacity-10">
+            <svg width="300" height="300" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(300,300)">
+                    <path d="M151.5,-182.1C193.4,-143.5,223.2,-89.4,231.2,-32.3C239.2,24.8,225.5,84.8,194.5,135.4C163.5,186,115.3,227.1,55.3,249.5C-4.7,271.8,-76.6,275.5,-131.4,247.5C-186.2,219.6,-224,160,-240.7,97.3C-257.4,34.6,-253.1,-31.2,-228.8,-84.6C-204.5,-138,-160.1,-178.9,-112.1,-215.6C-64.1,-252.2,-12.5,-284.5,33.7,-324.9C79.9,-365.3,127.6,-413.7,151.5,-182.1Z" fill="#ffffff" />
+                </g>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Add to the head section or include in your CSS file -->
+<style>
+:root {
+    --primary: #5542F6;
+    --primary-hover: #4835e3;
+    --primary-subtle: rgba(85, 66, 246, 0.1);
+    --secondary: #8C42F6;
+    --success: #0CAF60;
+    --success-subtle: rgba(12, 175, 96, 0.1);
+    --info: #3B82F6;
+    --info-subtle: rgba(59, 130, 246, 0.1);
+    --warning: #F59E0B;
+    --warning-subtle: rgba(245, 158, 11, 0.1);
+    --danger: #EF4444;
+    --danger-subtle: rgba(239, 68, 68, 0.1);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* Modern Gradient Backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #4A6CF7 0%, #5B45F8 100%);
+}
+
+/* Component Styles */
+.card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.hover-scale:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+.btn {
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    transition: all 0. ease;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.bg-primary-subtle { background-color: var(--primary-subtle); }
+.bg-success-subtle { background-color: var(--success-subtle); }
+.bg-info-subtle { background-color: var(--info-subtle); }
+.bg-warning-subtle { background-color: var(--warning-subtle); }
+.bg-danger-subtle { background-color: var(--danger-subtle); }
+
+.text-primary { color: var(--primary) !important; }
+.text-success { color: var(--success) !important; }
+.text-info { color: var(--info) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+
+/* Avatar styles */
+.avatar-sm {
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+/* Ribbon style for featured pools */
+.ribbon {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    z-index: 1;
+    overflow: hidden;
+    width: 75px;
+    height: 75px;
+    text-align: right;
+}
+.ribbon span {
+    font-size: 10px;
+    font-weight: bold;
+    color: #FFF;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 20px;
+    transform: rotate(45deg);
+    width: 100px;
+    display: block;
+    background: linear-gradient(#F70961 0%, #F9064A 100%);
+    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
+    position: absolute;
+    top: 19px;
+    right: -21px;
+}
+</style>
+
+<!-- Custom JS for animations and interactions -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 * index);
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

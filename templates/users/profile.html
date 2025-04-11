@@ -1,0 +1,401 @@
+{% extends 'base/base.html' %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+
+{% block title %}My Profile - NFTVault{% endblock %}
+
+{% block extra_head %}
+<style>
+    .profile-section {
+        background-color: #fdfcff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(to right, #7e22ce, #a855f7);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .profile-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+    .profile-header-icon {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    .profile-body {
+        padding: 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background-color: #7e22ce;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        transition: background-color 0.3s;
+    }
+
+    .profile-avatar:hover {
+        background-color: #6d28d9;
+    }
+
+    .profile-username {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-radius: 6px;
+        background-color: #f9fafb;
+    }
+
+    .info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background-color: rgba(126, 34, 206, 0.1);
+        color: #7e22ce;
+        border-radius: 6px;
+        margin-right: 1rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        word-break: break-word;
+    }
+
+    .copy-button {
+        cursor: pointer;
+        color: #7e22ce;
+        margin-left: 0.5rem;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .copy-button:hover {
+        background-color: rgba(126, 34, 206, 0.1);
+    }
+
+    .badge {
+        padding: 0.35em 0.65em;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .badge-pending {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-verified {
+        background-color: #d1fae5;
+        color: #059669;
+    }
+
+    .badge-icon {
+        margin-right: 0.375rem;
+    }
+
+    .dashboard-card {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+        border-radius: 8px;
+        border-left: 4px solid transparent;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s;
+        height: 100%;
+    }
+
+    .dashboard-card:hover {
+        border-left: 4px solid #7e22ce;
+        background-color: #faf5ff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        background-color: rgba(126, 34, 206, 0.1);
+        color: #7e22ce;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+        color: #6b7280;
+        margin-bottom: 1.25rem;
+        flex-grow: 1;
+    }
+
+    .action-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        background-color: #7e22ce;
+        color: white;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .action-button:hover {
+        background-color: #6d28d9;
+        text-decoration: none;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #10b981;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        animation: toastAnim 3s forwards;
+    }
+
+    .toast-icon {
+        margin-right: 8px;
+    }
+
+    @keyframes toastAnim {
+        0% { opacity: 0; transform: translateY(20px); }
+        10% { opacity: 1; transform: translateY(0); }
+        90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    @media (max-width: 768px) {
+        .row.g-4 > [class*="col-"] {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="padding-top: 0.1rem!important" >
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-md-4 mb-4">
+            <div class="profile-section">
+                <div class="profile-header" style="display: flex; justify-content: center; align-items: center;">
+                    <i class="fas fa-user-circle profile-header-icon" style="font-size: 30px; margin-right: 10px;"></i>
+                    <h3 style="font-size: 30px;">Profile</h3>
+                </div>
+                <div class="profile-body">
+                    <div class="text-center mb-4">
+                        <!-- Profile Avatar with Icon -->
+                        <div class="profile-avatar mx-auto">
+                            <!-- If you want to use a default profile icon (e.g., user icon) -->
+                            <i class="fas fa-user-circle" style="font-size: 50px; color: #333;"></i>
+                            <!-- Or you can add an image if the user has a profile picture -->
+                            <!-- <img src="{{ user.profile_picture_url }}" alt="User Avatar" class="rounded-circle" style="width: 50px; height: 50px;"> -->
+                        </div>
+                        
+                        <!-- Display the username -->
+                        <div class="profile-username">{{ user.username }}</div>
+                    </div>
+
+                    <div class="info-item" style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div class="info-icon" style="margin-right: 15px;">
+                            <i class="fas fa-envelope" style="font-size: 20px;"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label" style="font-weight: bold; font-size: 14px;">Email Address</div>
+                            <div class="info-value" style="font-size: 16px; color: #555;">{{ user.email }}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div class="info-icon" style="margin-right: 15px;">
+                            <i class="fas fa-wallet" style="font-size: 20px;"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label" style="font-weight: bold; font-size: 14px;">Wallet Address</div>
+                            <div class="info-value" style="font-size: 16px;">
+                                {% if user.wallet_address %}
+                                    <span title="{{ user.wallet_address }}">{{ user.wallet_address|truncatechars:16 }}</span>
+                                    <span class="copy-button" onclick="copyToClipboard('{{ user.wallet_address }}')" title="Copy Wallet Address" style="cursor: pointer; margin-left: 10px;">
+                                        <i class="fas fa-copy"></i>
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Not set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div class="info-icon" style="margin-right: 15px;">
+                            <i class="fas fa-user-plus" style="font-size: 20px;"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label" style="font-weight: bold; font-size: 14px;">Referral Code</div>
+                            <div class="info-value" style="font-size: 16px;">
+                                <span>{{ user.referral_code }}</span>
+                                <span class="copy-button" onclick="copyToClipboard('{{ user.referral_code }}')" title="Copy Referral Code" style="cursor: pointer; margin-left: 10px;">
+                                    <i class="fas fa-copy"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div class="info-icon" style="margin-right: 15px;">
+                            <i class="fas fa-shield-alt" style="font-size: 20px;"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label" style="font-weight: bold; font-size: 14px;">Email Verification</div>
+                            <div class="info-value" style="font-size: 16px;">
+                                {% if user.is_email_verified %}
+                                    <span class="badge badge-verified" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px;">
+                                        <i class="fas fa-check-circle badge-icon" style="color: white;"></i> Verified
+                                    </span>
+                                {% else %}
+                                    <span class="badge" style="background-color: #f8f9fa; color: black; padding: 5px 10px; border-radius: 15px; font-size: 14px;">
+                                        <i class="fas fa-clock badge-icon" style="color: black;"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'users:profile_edit' %}" class="action-button" style="font-size: 16px; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; display: inline-flex; align-items: center;">
+                            Edit Profile <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="col-md-8">
+            <div class="profile-section">
+                <div class="profile-header" style="display: flex; justify-content: center; align-items: center;">
+                    <i class="fas fa-th-large profile-header-icon" style="font-size: 30px; margin-right: 10px;"></i>
+                    <h3 style="font-size: 30px;">NFT Dashboard</h3>
+                </div>
+                <div class="profile-body">
+                    <div class="row g-4">
+                        <div class="col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-wallet"></i></div>
+                                <h4 class="card-title">My Wallet</h4>
+                                <p class="card-description">Manage your crypto assets, check balances and transaction history</p>
+                                <a href="{% url 'users:wallet' %}" class="action-button">Access Wallet <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-users"></i></div>
+                                <h4 class="card-title">My Referrals</h4>
+                                <p class="card-description">Track your referral network and view earned rewards</p>
+                                <a href="{% url 'users:referrals' %}" class="action-button">View Referrals <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-store"></i></div>
+                                <h4 class="card-title">NFT Marketplace</h4>
+                                <p class="card-description">Discover, buy, sell and trade unique digital collectibles</p>
+                                <a href="{% url 'marketplace:marketplace' %}" class="action-button">Enter Marketplace <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-coins"></i></div>
+                                <h4 class="card-title">Staking Pools</h4>
+                                <p class="card-description">Stake your assets and earn passive income through rewards</p>
+                                <a href="{% url 'mlm:staking_pools' %}" class="action-button">View Pools <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = '<i class="fas fa-check-circle toast-icon"></i> Copied!';
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}

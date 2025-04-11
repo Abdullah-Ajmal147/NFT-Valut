@@ -1,0 +1,428 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Profile - NFTVault{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #6366f1;
+        --primary-hover: #4f46e5;
+        --danger-color: #ef4444;
+        --danger-hover: #dc2626;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --bg-card: #ffffff;
+        --bg-page: #f8fafc;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--bg-page);
+        color: var(--text-primary);
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .profile-card {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        background: var(--bg-card);
+    }
+    
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 1.75rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+        color: var(--text-secondary);
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+    }
+
+    .profile-section {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .profile-section:last-child {
+        border-bottom: none;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+        background-color: transparent;
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-secondary {
+        color: var(--text-secondary);
+        border-color: var(--border-color);
+        background-color: transparent;
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--border-color);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-danger {
+        color: var(--danger-color);
+        border-color: var(--danger-color);
+        background-color: transparent;
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-warning {
+        color: #eab308;
+        border-color: #eab308;
+        background-color: transparent;
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #eab308;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .danger-card {
+        border-radius: 16px;
+        border: 1px solid #fee2e2;
+        background-color: #fef2f2;
+        margin-top: 2rem;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .danger-card:hover {
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
+    }
+
+    .danger-header {
+        background-color: transparent;
+        padding: 1.5rem;
+        border-bottom: 1px solid #fecaca;
+    }
+
+    .danger-header h5 {
+        color: var(--danger-color);
+        font-weight: 600;
+    }
+
+    .danger-body {
+        padding: 1.5rem;
+    }
+
+    .alert-info {
+        background-color: #eff6ff;
+        border-color: #bfdbfe;
+        color: #3b82f6;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+
+    .wallet-address {
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-family: monospace;
+        border: 1px solid var(--border-color);
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .user-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid var(--primary-color);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="padding-top: 0.1rem!important">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2 class="text-center">Edit Your Profile</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Profile Image Section -->
+                    <div class="profile-section text-center">
+                        <div class="profile-avatar mx-auto">
+                            <!-- If you want to use a default profile icon (e.g., user icon) -->
+                            <i class="fas fa-user-circle" style="font-size: 50px; color: #333;"></i>
+                            <!-- Or you can add an image if the user has a profile picture -->
+                            <!-- <img src="{{ user.profile_picture_url }}" alt="User Avatar" class="rounded-circle" style="width: 50px; height: 50px;"> -->
+                        </div>
+                        <h4 class="mb-0">{{ user.username }}</h4>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+
+                    <!-- Profile Form Section -->
+                    <div class="profile-section">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                                <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Password Change Section -->
+                    <div class="profile-section">
+                        <h5 class="section-title">Password Management</h5>
+                        <p class="section-desc">Secure your account with a strong password</p>
+                        <div class="text-center">
+                            <a href="{% url 'users:password_change' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if not user.is_email_verified %}
+                    <!-- Email Verification Section -->
+                    <div class="profile-section">
+                        <h5 class="section-title">Email Verification</h5>
+                        <p class="section-desc pulse-animation">Your email is not verified. Verify to access all features.</p>
+                        <div class="text-center">
+                            <form method="POST" action="{% url 'users:resend_verification' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-warning">
+                                    <i class="fas fa-envelope me-2"></i>Resend Verification Email
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Wallet Management Section -->
+                    <div class="profile-section">
+                        <h5 class="section-title">Wallet Management</h5>
+                        <p class="section-desc">Connect your Ethereum wallet to trade NFTs</p>
+                        
+                        {% if user.wallet_address %}
+                        <div class="text-center mb-3">
+                            <div class="wallet-address">
+                                {{ user.wallet_address|truncatechars:16 }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center mb-3">
+                            <p class="alert alert-info">No wallet address connected</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Make sure to enter a valid Ethereum wallet address starting with '0x'
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-card">
+                <div class="danger-header">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+                </div>
+                <div class="danger-body">
+                    <p class="text-danger mb-3">Once you delete your account, there is no going back. Please be certain.</p>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-trash-alt me-2"></i>Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>This action cannot be undone. Your account, NFTs, and all associated data will be permanently deleted.
+                </div>
+                <p>To confirm, please type your username: <strong>{{ user.username }}</strong></p>
+                <input type="text" id="confirmUsername" class="form-control" placeholder="Enter your username">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger" disabled>Permanently Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirm username validation for account deletion
+    document.getElementById('confirmUsername').addEventListener('input', function() {
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        confirmBtn.disabled = this.value !== '{{ user.username }}';
+    });
+
+    // Animate sections on page load
+    const sections = document.querySelectorAll('.profile-section');
+    sections.forEach((section, index) => {
+        section.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Form field animations
+    const formFields = document.querySelectorAll('.form-control');
+    formFields.forEach(field => {
+        field.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateX(5px)';
+            this.parentElement.style.transition = 'transform 0.3s ease';
+        });
+        
+        field.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateX(0)';
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
+
+<!-- Delete Account Modal -->
+{% comment %} <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <p>Please type your username <strong>{{ user.username }}</strong> to confirm:</p>
+                <input type="text" class="form-control" id="confirmUsername" placeholder="Enter your username">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'users:delete_account' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}

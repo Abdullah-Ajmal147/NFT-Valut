@@ -1,0 +1,865 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}NFT Marketplace | NFTVault{% endblock %}
+
+{% block content %}
+<section class="marketplace-header py-5">
+    <div class="container">
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-6">
+                <h1 class="market-title mb-3">Explore<span class="accent-dot">.</span></h1>
+                <p class="market-subtitle mb-4">Discover rare digital collectibles and extraordinary NFT artwork from top creators worldwide.</p>
+                <div class="trending-tags d-flex flex-wrap gap-2 mb-4">
+                    <a href="#" class="trending-tag">
+                        <span class="pulse-dot"></span>Trending
+                    </a>
+                    <a href="#" class="tag">Art</a>
+                    <a href="#" class="tag">Collectibles</a>
+                    <a href="#" class="tag">Gaming</a>
+                    <a href="#" class="tag">Music</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="market-graphic">
+                    <div class="floating-nft nft-1">
+                        <img src="{% static 'images/nft-preview-1.png' %}" alt="Featured NFT">
+                    </div>
+                    <div class="floating-nft nft-2">
+                        <img src="{% static 'images/nft-preview-2.jpeg' %}" alt="Featured NFT">
+                    </div>
+                    <div class="floating-nft nft-3">
+                        <img src="{% static 'images/nft-preview-3.jpg' %}" alt="Featured NFT">
+                    </div>
+                    <div class="glow-effect"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter and Search -->
+        <div class="filter-container">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-5 col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control" placeholder="Search for collections or artists...">
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-6">
+                    <div class="d-flex justify-content-md-end gap-2 flex-wrap filter-group">
+                        <div class="dropdown filter-dropdown">
+                            <button class="filter-btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-filter"></i> Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                <li><a class="dropdown-item active" href="#">All Categories</a></li>
+                                <li><a class="dropdown-item" href="#">Art</a></li>
+                                <li><a class="dropdown-item" href="#">Collectibles</a></li>
+                                <li><a class="dropdown-item" href="#">Music</a></li>
+                                <li><a class="dropdown-item" href="#">Photography</a></li>
+                                <li><a class="dropdown-item" href="#">Virtual Worlds</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown filter-dropdown">
+                            <button class="filter-btn dropdown-toggle" type="button" id="priceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-tags"></i> Price Range
+                            </button>
+                            <ul class="dropdown-menu price-menu" aria-labelledby="priceDropdown">
+                                <li><a class="dropdown-item active" href="#">All Prices</a></li>
+                                <li><a class="dropdown-item" href="#">Under 1 ETH</a></li>
+                                <li><a class="dropdown-item" href="#">1-5 ETH</a></li>
+                                <li><a class="dropdown-item" href="#">5-10 ETH</a></li>
+                                <li><a class="dropdown-item" href="#">10+ ETH</a></li>
+                                <li>
+                                    <div class="px-3 py-2">
+                                        <label class="price-range-label">Custom Range</label>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <input type="number" class="form-control form-control-sm" placeholder="Min">
+                                            <span>-</span>
+                                            <input type="number" class="form-control form-control-sm" placeholder="Max">
+                                            <button class="btn btn-sm btn-primary">Apply</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown filter-dropdown">
+                            <button class="filter-btn dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort"></i> Sort By
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                <li><a class="dropdown-item active" href="#">Newest First</a></li>
+                                <li><a class="dropdown-item" href="#">Price: Low to High</a></li>
+                                <li><a class="dropdown-item" href="#">Price: High to Low</a></li>
+                                <li><a class="dropdown-item" href="#">Most Popular</a></li>
+                                <li><a class="dropdown-item" href="#">Ending Soon</a></li>
+                            </ul>
+                        </div>
+                        <button class="view-toggle-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-toggle-btn" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="marketplace-content py-5">
+    <div class="container">
+        <!-- Featured NFTs Section -->
+        <h2 class="section-title">Featured NFTs</h2>
+        <div class="featured-section mb-5">            
+            <div class="row g-4 collections-row">
+                {% for nft in feature_nfts %}
+                    <div class="col-md-6 col-lg-3">
+                        <div class="collection-card">
+                            <div class="collection-banner">
+                                {% if nft.image %}
+                                    <img src="{{ nft.image.url }}" alt="{{ nft.name }}" class="featured-nft-img">
+                                {% else %}
+                                    <img src="{% static 'images/default-nft.png' %}" alt="Default NFT" class="featured-nft-img">
+                                {% endif %}
+                            </div>
+                            <div class="collection-info">
+                                <div class="collection-avatar">
+                                    {% comment %}
+                                    Replace the profile image access as needed. If you have a profile model with an avatar field, update accordingly.
+                                    {% endcomment %}
+                                    {% if nft.creator.profile.avatar %}
+                                        <img src="{{ nft.creator.profile.avatar.url }}" alt="{{ nft.creator.username }}" class="creator-avatar-img">
+                                    {% else %}
+                                        <img src="{% static 'images/default-avatar.png' %}" alt="{{ nft.creator.username }}" class="creator-avatar-img">
+                                    {% endif %}
+                                    {% if nft.creator.is_verified %}
+                                        <span class="verified-badge"><i class="fas fa-check"></i></span>
+                                    {% endif %}
+                                </div>
+                                <h3 class="collection-name">{{ nft.name }}</h3>
+                                <p class="collection-creator">by @{{ nft.creator.username }}</p>
+                                <div class="collection-stats">
+                                    <div class="stat">
+                                        <span class="stat-value">{{ nft.total_supply }}</span>
+                                        <span class="stat-label">Items</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">{{ nft.available_supply }}</span>
+                                        <span class="stat-label">Available</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">{{ nft.price|floatformat:2 }}</span>
+                                        <span class="stat-label">Price</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p>No featured NFTs available.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- NFT Grid -->
+        <div class="nft-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title">Trending NFTs</h2>
+                <div class="section-controls">
+                    <span class="results-count">Showing <strong>{{ nfts|slice:":12"|length }}</strong> of <strong>{{ nfts|length }}</strong> NFTs</span>
+                </div>
+            </div>
+            
+            <div class="row g-4 nft-grid">
+                {% if nfts %}
+                    {% for nft in nfts %}
+                        <div class="col-sm-6 col-lg-4 col-xl-3">
+                            <div class="nft-card">
+                                <div class="nft-image-wrapper">
+                                    {% if nft.image %}
+                                        <img src="{{ nft.image.url }}" alt="{{ nft.name }}" class="img-fluid rounded" loading="lazy">
+                                    {% else %}
+                                        <img src="{% static 'images/default-nft.png' %}" alt="Default NFT" class="img-fluid rounded" loading="lazy">
+                                    {% endif %}
+                                    
+                                    <div class="nft-actions">
+                                        <button class="action-btn like-btn" title="Add to favorites" aria-label="Add to favorites">
+                                            <i class="far fa-heart"></i>
+                                            <span class="likes-count">{{ nft.likes|default:"0" }}</span>
+                                        </button>
+                                        <button class="action-btn share-btn" title="Share" aria-label="Share NFT">
+                                            <i class="fas fa-share-alt"></i>
+                                        </button>
+                                    </div>
+
+                                    {% if forloop.counter < 4 %}
+                                    <div class="nft-badge new">
+                                        <i class="fas fa-clock"></i> New
+                                    </div>
+                                    
+                                    {% elif forloop.counter < 6 %}
+                                    <div class="nft-badge hot">
+                                        <i class="fas fa-fire"></i> Trending
+                                    </div>
+                                    
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="nft-content">
+                                    <div class="nft-creator">
+                                        <div class="creator-avatar">
+                                            {% if nft.creator.profile.avatar %}
+                                                <img src="{{ nft.creator.profile.avatar.url }}" alt="{{ nft.creator.username }}" class="rounded-circle">
+                                            {% else %}
+                                                <img src="{% static 'images/default-avatar.png' %}" alt="Creator" class="rounded-circle">
+                                            {% endif %}
+                                        </div>
+                                        <div class="creator-info">
+                                            <span class="creator-label">Creator</span>
+                                            <span class="creator-name">@{{ nft.creator.username|default:"anonymous" }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="nft-title text-truncate">{{ nft.name }}</h3>
+                                    <p class="nft-description">{{ nft.description|truncatewords:10 }}</p>
+                                    
+                                    <div class="nft-footer">
+                                        <div class="nft-price-container">
+                                            <span class="price-label">Current Price</span>
+                                            <div class="nft-price">
+                                                <i class="fab fa-ethereum"></i>
+                                                <span>{{ nft.price|floatformat:1 }}</span>
+                                                <span class="usd-price">(≈ ${{ nft.price|floatformat:1 }})</span>
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'marketplace:nft_detail' nft.id %}" class="btn btn-primary btn-sm">
+                                            <span>View Details</span>
+                                            <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="hover-overlay">
+                                    <div class="overlay-actions">
+                                        <a href="{% url 'marketplace:nft_detail' nft.id %}" class="btn btn-light btn-lg mb-2">View NFT</a>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'marketplace:buy_nft' nft.pk %}" class="btn btn-primary btn-lg">Buy Now</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No NFTs are currently available.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if nfts|length > 12 %}
+            <div class="text-center mt-5">
+                <a href="{% url 'marketplace:browse' %}" class="btn btn-outline-primary">
+                    View All NFTs <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div> 
+
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5">
+    <div class="container">
+        <div class="newsletter-container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="newsletter-title">Stay in the loop</h2>
+                    <p class="newsletter-text">Subscribe to our newsletter to get the latest updates on new drops, exclusive offers, and marketplace tips.</p>
+                </div>
+                <div class="col-lg-6">
+                    <form class="newsletter-form">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Enter your email address">
+                            <button class="btn btn-primary" type="submit">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Base Styles and Variables */
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary: #9333ea;
+    --accent: #ec4899;
+    --dark: #0f172a;
+    --dark-mid: #1e293b;
+    --light: #f8fafc;
+    --light-mid: #f1f5f9;
+    --gray: #64748b;
+    --gray-light: #94a3b8;
+    --gray-lighter: #cbd5e1;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #0ea5e9;
+    
+    --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --gradient-secondary: linear-gradient(135deg, #8b5cf6, #ec4899);
+    --gradient-accent: linear-gradient(135deg, #ec4899, #f59e0b);
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+    
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 20px;
+    --border-radius-xl: 28px;
+    
+    --animation-slow: 0.5s;
+    --animation-medium: 0.3s;
+    --animation-fast: 0.15s;
+}
+
+/* General Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light);
+    color: var(--dark-mid);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary);
+    transition: color var(--animation-medium) ease;
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+.btn {
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1.5rem;
+    transition: all var(--animation-medium) ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+    opacity: 0.95;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--gray-lighter);
+    color: var(--dark);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+}
+
+.form-control {
+    border-radius: var(--border-radius-md);
+    border: 2px solid var(--light-mid);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all var(--animation-medium) ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.form-select {
+    border-radius: var(--border-radius-md);
+    border: 2px solid var(--light-mid);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 1rem center;
+}
+
+.form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Market Header */
+.marketplace-header {
+    background: linear-gradient(180deg, rgba(244, 245, 255, 0.8) 0%, rgba(244, 245, 255, 0.4) 100%);
+    padding: 4rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.market-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--dark);
+    position: relative;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+}
+
+.accent-dot {
+    color: var(--accent);
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.market-subtitle {
+    font-size: 1.25rem;
+    color: var(--gray);
+    font-weight: 500;
+    max-width: 550px;
+    line-height: 1.6;
+}
+
+.trending-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.trending-tag, .tag {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: all var(--animation-medium) ease;
+}
+
+.trending-tag {
+    background-color: #fff3f8;
+    color: var(--accent);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+    box-shadow: 0 3px 10px rgba(236, 72, 153, 0.1);
+}
+
+.trending-tag:hover {
+    background-color: #ffebf4;
+    box-shadow: 0 5px 15px rgba(236, 72, 153, 0.15);
+    transform: translateY(-2px);
+    color: var(--accent);
+}
+
+.pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    margin-right: 8px;
+    position: relative;
+}
+
+.pulse-dot::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--accent);
+    animation: pulseDot 1.5s infinite;
+    opacity: 0.6;
+    transform-origin: center;
+    top: 0;
+    left: 0;
+}
+
+@keyframes pulseDot {
+    0% { transform: scale(1); opacity: 0.6; }
+    70% { transform: scale(2.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.tag {
+    background-color: white;
+    color: var(--gray);
+    border: 1px solid var(--gray-lighter);
+}
+
+.tag:hover {
+    background-color: var(--light-mid);
+    color: var(--primary-dark);
+    border-color: var(--gray-light);
+}
+
+.market-graphic {
+    position: relative;
+    height: 350px;
+    margin-right: -50px;
+}
+
+.floating-nft {
+    position: absolute;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--animation-slow) ease;
+}
+
+.floating-nft img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius-lg);
+}
+
+.nft-1 {
+    width: 220px;
+    height: 220px;
+    top: 20px;
+    right: 70px;
+    animation: float1 8s infinite ease-in-out;
+    z-index: 3;
+    transform: rotate(5deg);
+}
+
+.nft-2 {
+    width: 180px;
+    height: 180px;
+    bottom: 40px;
+    right: 50px;
+    animation: float2 9s infinite ease-in-out;
+    z-index: 2;
+    transform: rotate(-8deg);
+}
+
+.nft-3 {
+    width: 150px;
+    height: 150px;
+    top: 90px;
+    right: 250px;
+    animation: float3 7s infinite ease-in-out;
+    z-index: 1;
+    transform: rotate(12deg);
+}
+
+@keyframes float1 {
+    0% { transform: translateY(0) rotate(5deg); }
+    50% { transform: translateY(-20px) rotate(8deg); }
+    100% { transform: translateY(0) rotate(5deg); }
+}
+
+@keyframes float2 {
+    0% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(15px) rotate(-5deg); }
+    100% { transform: translateY(0) rotate(-8deg); }
+}
+
+@keyframes float3 {
+    0% { transform: translateY(0) rotate(12deg); }
+    50% { transform: translateY(-15px) rotate(8deg); }
+    100% { transform: translateY(0) rotate(12deg); }
+}
+
+.glow-effect {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(236,72,153,0) 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(30px);
+    z-index: 0;
+}
+
+/* Additional Styles */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: var(--light-mid);
+    border-radius: var(--border-radius-md);
+}
+.empty-state .empty-icon {
+    font-size: 3rem;
+    color: var(--gray-light);
+    margin-bottom: 1rem;
+}
+
+.pagination-container {
+    margin-top: 2rem;
+}
+
+.nft-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    background-color: #fff;
+    height: 100%;
+}
+
+.nft-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.nft-image-wrapper {
+    position: relative;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    overflow: hidden;
+}
+
+.nft-image-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nft-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.action-btn {
+    background-color: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #fff;
+    transform: scale(1.1);
+}
+
+.nft-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.nft-badge.hot {
+    background-color: rgba(255, 59, 48, 0.9);
+    color: white;
+}
+
+.nft-badge.new {
+    background-color: rgba(0, 122, 255, 0.9);
+    color: white;
+}
+
+.nft-content {
+    padding: 20px;
+}
+
+.nft-creator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.creator-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+}
+
+.creator-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.creator-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.creator-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+
+.creator-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.nft-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.nft-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+    height: 40px;
+    overflow: hidden;
+}
+
+.nft-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.price-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.nft-price {
+    font-weight: 700;
+    color: #343a40;
+    display: flex;
+    align-items: center;
+}
+
+.nft-price i {
+    margin-right: 5px;
+    color: #627eea;
+}
+
+.usd-price {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+.hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.overlay-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nft-card:hover .hover-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Section Controls */
+.section-controls {
+    display: flex;
+    align-items: center;
+}
+
+.results-count {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Set fixed dimensions for the featured NFT image */
+.featured-nft-img {
+    width: 100%;         /* Full width of the container */
+    height: 200px;       /* Fixed height (adjust as needed) */
+    object-fit: cover;   /* Crop and center the image */
+}
+
+/* Set fixed dimensions for the creator avatar image */
+.creator-avatar-img {
+    width: 50px;         /* Fixed width */
+    height: 50px;        /* Fixed height */
+    border-radius: 50%;  /* Circular shape */
+    object-fit: cover;   /* Ensure the avatar fills the space */
+}
+
+</style>
+{% endblock %}

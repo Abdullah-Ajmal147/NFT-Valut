@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Transaction Check API - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Transaction Check API</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">API Endpoint</h5>
+                        <p class="mb-0">Use this endpoint to check the status of a transaction programmatically.</p>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Endpoint</h5>
+                            <code>GET /api/transactions/check/</code>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Parameters</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>transaction_hash</strong> (required): The hash of the transaction to check</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Example Request</h5>
+                            <pre class="bg-dark text-light p-3 rounded"><code>curl -X GET "https://your-domain.com/api/transactions/check/?transaction_hash=0x123..."</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Example Response</h5>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+    "status": "completed",
+    "transaction_id": 123,
+    "transaction_type": "buy",
+    "nft_name": "Example NFT",
+    "price": "1.5",
+    "created_at": "2024-03-20T10:30:00Z"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Response Fields</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>status</strong>: The current status of the transaction (pending, completed, failed)</li>
+                                <li><strong>transaction_id</strong>: The unique identifier of the transaction</li>
+                                <li><strong>transaction_type</strong>: The type of transaction (buy, sell)</li>
+                                <li><strong>nft_name</strong>: The name of the NFT involved in the transaction</li>
+                                <li><strong>price</strong>: The price of the transaction in ETH</li>
+                                <li><strong>created_at</strong>: The timestamp when the transaction was created</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Error Response</h5>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+    "error": "Transaction not found"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'marketplace:transaction_history' %}" class="btn btn-outline-primary">Back to Transaction History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

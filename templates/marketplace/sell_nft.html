@@ -1,0 +1,569 @@
+{% extends 'base/base.html' %}
+{% load nft_filters %}
+
+{% block title %}Sell Your NFTs to NFTVault - NFTVault{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Left Sidebar with Info -->
+        <div class="col-lg-3 mb-4">
+            <div class="sticky-top pt-3">
+                <div class="sidebar-card bg-light rounded-4 shadow-sm p-4 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="process-icon bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold">Sale Process</h5>
+                    </div>
+                    <ul class="process-list list-unstyled">
+                        <li class="process-item d-flex mb-3">
+                            <div class="process-number bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">1</div>
+                            <div>
+                                <p class="mb-0"><strong>Configure</strong> your sale details</p>
+                            </div>
+                        </li>
+                        <li class="process-item d-flex mb-3">
+                            <div class="process-number bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">2</div>
+                            <div>
+                                <p class="mb-0"><strong>Submit</strong> your request</p>
+                            </div>
+                        </li>
+                        <li class="process-item d-flex mb-3">
+                            <div class="process-number bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">3</div>
+                            <div>
+                                <p class="mb-0"><strong>Review</strong> by NFTVault (5 days)</p>
+                            </div>
+                        </li>
+                        <li class="process-item d-flex">
+                            <div class="process-number bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">4</div>
+                            <div>
+                                <p class="mb-0"><strong>Payment</strong> to your wallet</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="alert-card p-3 rounded-4 border-start border-5 border-warning bg-warning bg-opacity-10 mb-4 shadow-sm">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4 me-3"></i>
+                        <p class="mb-0 small">Please ensure you have the correct quantity and price for each NFT. NFTVault may counter-offer based on market conditions.</p>
+                    </div>
+                </div>
+                
+                <div class="info-card bg-primary bg-opacity-10 p-3 rounded-4 shadow-sm">
+                    <h6 class="fw-bold mb-3">Market Stats</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Floor Price:</span>
+                        <span class="fw-bold">45 USDT</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Avg. Sale Price:</span>
+                        <span class="fw-bold">58 USDT</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">24h Volume:</span>
+                        <span class="fw-bold">3,450 USDT</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Your Collection Value:</span>
+                        <span class="fw-bold text-success">55 USDT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="fw-bold text-gradient">Sell Your NFTs</h1>
+                <span class="badge bg-success rounded-pill py-2 px-3">Zero Platform Fees</span>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if ownership %}
+                    <form method="post" action="{% url 'marketplace:sell_nfts' %}" id="sellNftForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="selected_nfts" value="{{ ownership.id }}">
+                        
+                        <div class="card border-0 rounded-4 shadow-sm mb-5 hover-card">
+                            <div class="card-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <div class="nft-image-container h-100 position-relative overflow-hidden rounded-start-4">
+                                            <img src="{{ ownership.nft.image.url }}" class="img-fluid h-100 w-100 object-fit-cover" alt="{{ ownership.nft.name }}">
+                                            <div class="nft-overlay">
+                                                <span class="badge bg-primary position-absolute top-0 start-0 m-3">{{ ownership.nft.get_rarity_level_display }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div>
+                                                    <h3 class="card-title fw-bold mb-1">{{ ownership.nft.name }}</h3>
+                                                    <p class="text-muted small">{{ ownership.nft.description|truncatewords:15 }}</p>
+                                                </div>
+                                                <div class="text-end">
+                                                    <p class="text-muted mb-0 small">Current Value</p>
+                                                    <h4 class="text-success fw-bold">{{ ownership.nft.price|format_crypto }} USDT</h4>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row g-4 mt-2">
+                                                <div class="col-md-6">
+                                                    <label for="quantity-{{ ownership.id }}" class="form-label fw-medium small">Quantity to Sell</label>
+                                                    <div class="quantity-control">
+                                                        <div class="input-group">
+                                                            <button class="btn btn-outline-secondary quantity-decrease" type="button">
+                                                                <i class="bi bi-dash"></i>
+                                                            </button>
+                                                            <input type="number" class="form-control form-control-lg text-center" 
+                                                                id="quantity-{{ ownership.id }}" 
+                                                                name="quantity-{{ ownership.id }}" 
+                                                                min="1" 
+                                                                max="{{ ownership.quantity }}" 
+                                                                value="1" 
+                                                                required>
+                                                            <button class="btn btn-outline-secondary quantity-increase" type="button">
+                                                                <i class="bi bi-plus"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mt-1">
+                                                            <span class="small text-muted">Min: 1</span>
+                                                            <span class="small text-muted">Owned: {{ ownership.quantity }}</span>
+                                                        </div>
+                                                        <div class="invalid-feedback">
+                                                            Please enter a valid quantity.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <label for="price-{{ ownership.id }}" class="form-label fw-medium small">Asking Price (USDT)</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">
+                                                            <i class="bi bi-currency-dollar"></i>
+                                                        </span>
+                                                        <input type="number" 
+                                                            class="form-control form-control-lg" 
+                                                            id="price-{{ ownership.id }}" 
+                                                            name="price-{{ ownership.id }}" 
+                                                            min="0.000001" 
+                                                            step="0.000001" 
+                                                            value="{{ ownership.nft.price|format_crypto }}" 
+                                                            required>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mt-1">
+                                                        <span class="small text-muted fst-italic">Market suggested price</span>
+                                                        <i class="bi bi-info-circle ms-1 text-muted" data-bs-toggle="tooltip" title="This price is based on recent market activity"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                                <a href="{% url 'marketplace:nft_detail' ownership.nft.pk %}" class="btn btn-sm btn-link text-decoration-none">
+                                                    <i class="bi bi-info-circle me-1"></i> View Details
+                                                </a>
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                                    Token ID: #{{ ownership.nft.id }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sell Request Details Section -->
+                        <div class="card border-0 rounded-4 shadow-sm mb-5">
+                            <div class="card-header bg-white p-4 border-0">
+                                <h4 class="fw-bold mb-0">
+                                    <i class="bi bi-send me-2 text-primary"></i> Sale Request Details
+                                </h4>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label for="contact_preference" class="form-label fw-medium">Preferred Contact Method</label>
+                                        <select class="form-select form-select-lg" id="contact_preference" name="contact_preference" required>
+                                            <option value="" selected disabled>Choose contact method...</option>
+                                            <option value="email">Email</option>
+                                            <option value="phone">Phone</option>
+                                            <option value="platform">Platform Messaging</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a contact method.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label for="wallet_address" class="form-label fw-medium">Wallet Address</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-lg" id="wallet_address" name="wallet_address" value="0x8f7d5498e..." readonly>
+                                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="Use different wallet">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Payment will be sent to this wallet</small>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="sell_notes" class="form-label fw-medium">Additional Notes (Optional)</label>
+                                        <textarea class="form-control" id="sell_notes" name="sell_notes" rows="3" placeholder="Any additional information or special requests..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Important Information Card -->
+                        <div class="card border-0 rounded-4 shadow-sm mb-5 bg-info bg-opacity-10">
+                            <div class="card-header bg-info p-4 text-white border-0 rounded-top-4">
+                                <h4 class="fw-bold mb-0">
+                                    <i class="bi bi-lightbulb me-2"></i> Important Information
+                                </h4>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="d-flex">
+                                            <div class="info-icon bg-info text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-clock"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Review Timeline</h6>
+                                                <p class="mb-0 small">NFTVault will review your sale request within 5 working days.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex">
+                                            <div class="info-icon bg-info text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-shield-check"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Verification Process</h6>
+                                                <p class="mb-0 small">All transactions are subject to our verification process.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex">
+                                            <div class="info-icon bg-info text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-wallet2"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Payment Method</h6>
+                                                <p class="mb-0 small">Payment will be made directly to your registered wallet.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex">
+                                            <div class="info-icon bg-info text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-cash-coin"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Zero Platform Fees</h6>
+                                                <p class="mb-0 small">No platform fees are charged when selling directly to NFTVault.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Section -->
+                        <div class="card border-0 rounded-4 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                                    <div class="form-check mb-3 mb-md-0">
+                                        <input class="form-check-input" type="checkbox" id="accept_terms" name="accept_terms" required>
+                                        <label class="form-check-label" for="accept_terms">
+                                            I accept the <a href="#" class="text-decoration-none">terms and conditions</a>
+                                        </label>
+                                        <div class="invalid-feedback">
+                                            You must accept the terms to proceed.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid d-md-block">
+                                        <button type="submit" class="btn btn-primary btn-lg px-5" id="submitButton">
+                                            <i class="bi bi-send me-2"></i> Submit Sale Request
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-state-icon mb-4">
+                            <i class="bi bi-collection fs-1 text-muted"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">You don't own any NFTs yet</h3>
+                        <p class="text-muted mb-4">Start your collection by exploring our marketplace.</p>
+                        <a href="{% url 'marketplace:marketplace' %}" class="btn btn-primary btn-lg px-5">
+                            <i class="bi bi-shop me-2"></i> Explore Marketplace
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="login-prompt text-center py-5">
+                    <div class="login-icon mb-4">
+                        <i class="bi bi-person-lock fs-1 text-primary opacity-75"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Please Login to Continue</h3>
+                    <p class="text-muted mb-4">You need to be logged in to sell your NFTs.</p>
+                    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login to Your Account
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Text Gradient */
+.text-gradient {
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card & Input Styling */
+.card {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
+}
+
+/* NFT Image Container */
+.nft-image-container {
+    position: relative;
+    min-height: 300px;
+    background: linear-gradient(45deg, #f3f3f3, #e6e6e6);
+}
+
+.nft-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 50%);
+}
+
+/* Object Fit Utility */
+.object-fit-cover {
+    object-fit: cover;
+}
+
+/* Process Icons */
+.process-icon, .info-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.process-number {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Button Styles */
+.btn-primary {
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Form Check Input */
+.form-check-input:checked {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+/* Utility Classes */
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-start-4 {
+    border-top-left-radius: 1rem !important;
+    border-bottom-left-radius: 1rem !important;
+}
+
+.rounded-top-4 {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+/* Sticky sidebar for desktop */
+@media (min-width: 992px) {
+    .sticky-top {
+        top: 2rem;
+        z-index: 1020;
+    }
+}
+</style>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quantity selector buttons
+        const decreaseButtons = document.querySelectorAll('.quantity-decrease');
+        const increaseButtons = document.querySelectorAll('.quantity-increase');
+        
+        decreaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('input[type="number"]');
+                let value = parseInt(input.value);
+                if (value > parseInt(input.min)) {
+                    input.value = value - 1;
+                    input.dispatchEvent(new Event('change'));
+                }
+                
+                // Add click animation
+                this.classList.add('btn-active');
+                setTimeout(() => {
+                    this.classList.remove('btn-active');
+                }, 200);
+            });
+        });
+        
+        increaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('input[type="number"]');
+                let value = parseInt(input.value);
+                if (value < parseInt(input.max)) {
+                    input.value = value + 1;
+                    input.dispatchEvent(new Event('change'));
+                }
+                
+                // Add click animation
+                this.classList.add('btn-active');
+                setTimeout(() => {
+                    this.classList.remove('btn-active');
+                }, 200);
+            });
+        });
+        
+        // Form validation with animation
+        const form = document.getElementById('sellNftForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Shake animation for invalid fields
+                    const invalidInputs = form.querySelectorAll(':invalid');
+                    invalidInputs.forEach(input => {
+                        input.animate([
+                            { transform: 'translateX(-5px)' },
+                            { transform: 'translateX(5px)' },
+                            { transform: 'translateX(-5px)' },
+                            { transform: 'translateX(5px)' },
+                            { transform: 'translateX(0)' }
+                        ], {
+                            duration: 400,
+                            easing: 'ease-in-out'
+                        });
+                    });
+                    
+                    // Scroll to first invalid element
+                    if (invalidInputs.length > 0) {
+                        invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitButton');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+                }
+                
+                form.classList.add('was-validated');
+            });
+        }
+        
+        // Initialize tooltips
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+        
+        // Add scroll reveal animation - FIXED VERSION
+        const animateElements = document.querySelectorAll('.card, .alert-card, .info-card, .empty-state, .login-prompt');
+        
+        // Set initial style for animation
+        animateElements.forEach((el) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+        
+        // Create intersection observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Apply the visible styles directly when element is intersecting
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        // We can stop observing this element now
+                        observer.unobserve(entry.target);
+                    }, 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        // Start observing elements
+        animateElements.forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
