@@ -12,11 +12,11 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Your Referral Code:</strong> {{ user.referral_code }}</p>
-                    <p><strong>Total Referrals:</strong> {{ total_referrals }}</p>
-                    <p><strong>Total Earnings from Referrals:</strong> {{ total_earnings }} ETH</p>
+                    <p><strong>Total Referrals:</strong> {{ total_referrals|default:0 }}</p>
+                    <p><strong>Total Earnings from Referrals:</strong> {{ total_earnings|floatformat:2 }} USDT</p>
                     
                     <div class="input-group mt-3">
-                        <input type="text" class="form-control" value="https://nftvault.com/register?ref={{ user.referral_code }}" id="referralLink" readonly>
+                        <input type="text" class="form-control" value="{{ user.get_referral_link }}" id="referralLink" readonly>
                         <button class="btn btn-primary" onclick="copyReferralLink()">Copy Link</button>
                     </div>
                 </div>
@@ -32,14 +32,14 @@
                         <div class="col-6">
                             <div class="text-center mb-3">
                                 <h4>Level 1</h4>
-                                <p class="h2">{{ level_1_count }}</p>
+                                <p class="h2">{{ level_1_count|default:0 }}</p>
                                 <small>Direct Referrals</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center mb-3">
                                 <h4>Level 2</h4>
-                                <p class="h2">{{ level_2_count }}</p>
+                                <p class="h2">{{ level_2_count|default:0 }}</p>
                                 <small>Indirect Referrals</small>
                             </div>
                         </div>
@@ -69,9 +69,9 @@
                         <tbody>
                             {% for referral in referrals %}
                             <tr>
-                                <td>{{ referral.username }}</td>
+                                <td>{{ referral.username|default:"Unknown" }}</td>
                                 <td>{{ referral.level }}</td>
-                                <td>{{ referral.date_joined|date }}</td>
+                                <td>{{ referral.date_joined|date:"Y-m-d" }}</td>
                                 <td>
                                     {% if referral.is_active %}
                                         <span class="badge bg-success">Active</span>
@@ -79,7 +79,7 @@
                                         <span class="badge bg-warning">Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ referral.earnings }} ETH</td>
+                                <td>{{ referral.earnings|floatformat:2 }} USDT</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -91,16 +91,21 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
 function copyReferralLink() {
-    var copyText = document.getElementById("referralLink");
+    const copyText = document.getElementById("referralLink");
     copyText.select();
     copyText.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Referral link copied to clipboard!");
+    try {
+        document.execCommand("copy");
+        alert("Referral link copied to clipboard!");
+    } catch (err) {
+        console.error("Failed to copy: ", err);
+        alert("Failed to copy the link. Please copy it manually.");
+    }
 }
 </script>
 {% endblock %}
-{% endblock %} 

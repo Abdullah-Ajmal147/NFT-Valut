@@ -7,6 +7,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 <style>
+    /* Deposit Steps Styling */
+    .deposit-steps {
+        margin-bottom: 25px;
+    }
+
+    .step-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .step-label.active {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    /* File Input Styling */
+    input[type="file"].form-control {
+        padding: 10px;
+        line-height: 1.2;
+    }
+
+    /* Back Button Style */
+    .btn-outline-secondary {
+        color: var(--text-color);
+        border: 2px solid var(--border-color);
+        background-color: transparent;
+        transition: var(--transition);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--light-gray);
+        color: var(--dark-color);
+        border-color: var(--border-color);
+    }
     :root {
         --primary-color: #6366f1;
         --primary-hover: #4f46e5;
@@ -574,7 +610,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="wallet-container" style="animation: fadeIn 0.5s ease-out;">
+<div class="wallet-container" style="animation: fadeIn 0.5s ease-out;padding-top: 0.1rem!important">
     <h1 class="page-title">My Wallet</h1>
 
     <div class="row g-4">
@@ -704,44 +740,105 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <p class="text-muted mb-4">Send funds to the address below. Balances will update after confirmation (typically within 2 hours).</p>
-
-                <!-- Currency Selection -->
-                <div class="mb-4">
-                    <label for="depositCurrency" class="form-label">Currency</label>
-                    <select class="form-select" id="depositCurrency" name="currency" disabled>
-                        <option value="USDT" selected>USDT (Tron TRC-20)</option>
-                    </select>
+                <!-- Step Indicator -->
+                <div class="deposit-steps mb-4">
+                    <div class="progress" style="height: 6px; background-color: #e5e7eb;">
+                        <div class="progress-bar" role="progressbar" id="depositProgressBar" style="width: 50%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <span class="step-label active" id="stepAddressLabel">1. Get Address</span>
+                        <span class="step-label" id="stepConfirmLabel">2. Confirm Deposit</span>
+                    </div>
                 </div>
 
-                <!-- Deposit Address -->
-                <div class="mb-4">
-                    <label class="form-label">USDT (TRC-20) Deposit Address</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="{{ usdt_deposit_address|default:'Not generated yet' }}" readonly>
-                        <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('{{ usdt_deposit_address|default:'' }}', this)">
-                            <i class="fas fa-copy"></i> <span class="copy-text">Copy</span>
+                <!-- Step 1: Show Address (Initial View) -->
+                <div id="depositStep1">
+                    <p class="text-muted mb-4">Send funds to the address below. After sending, click 'Next' to confirm your deposit.</p>
+
+                    <!-- Currency Selection -->
+                    <div class="mb-4">
+                        <label for="depositCurrency" class="form-label">Currency</label>
+                        <select class="form-select" id="depositCurrency" name="currency" disabled>
+                            <option value="USDT" selected>USDT (Tron TRC-20)</option>
+                        </select>
+                    </div>
+
+                    <!-- Deposit Address -->
+                    <div class="mb-4">
+                        <label class="form-label">USDT (TRC-20) Deposit Address</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ usdt_deposit_address|default:'Not generated yet' }}" readonly>
+                            <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyToClipboard('{{ usdt_deposit_address|default:'' }}', this)">
+                                <i class="fas fa-copy"></i> <span class="copy-text">Copy</span>
+                            </button>
+                        </div>
+                        
+                        <!-- QR Code -->
+                        <div class="text-center mt-4">
+                            <div id="qrcode" style="display: inline-block; padding: 10px; background: white; border-radius: 8px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Alert -->
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Important:</strong> Only send USDT (TRC-20) to this address. Sending other tokens may result in permanent loss.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Confirm Deposit (Hidden Initially) -->
+                <div id="depositStep2" style="display: none;">
+                    <form method="post" action="{% url 'users:confirm_deposit' %}" id="confirmDepositForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <p class="text-muted mb-4">Please confirm the details of the deposit you've just made.</p>
+                        
+                        <!-- Transaction Hash (Optional) -->
+                        <div class="mb-4">
+                            <label for="txHash" class="form-label">Transaction Hash (Optional)</label>
+                            <input type="text" class="form-control" id="txHash" name="transaction_hash" placeholder="e.g., 7a42c1b...">
+                            <small class="form-text text-muted">If available, this helps us track your deposit faster.</small>
+                        </div>
+
+                        <!-- Deposit Amount -->
+                        <div class="mb-4">
+                            <label for="depositAmount" class="form-label">Amount Sent (USDT) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="depositAmount" name="amount" placeholder="e.g., 100.00" required>
+                        </div>
+
+                        <!-- Screenshot Upload -->
+                        <div class="mb-4">
+                            <label for="depositScreenshot" class="form-label">Upload Confirmation Screenshot (Optional)</label>
+                            <input type="file" class="form-control" id="depositScreenshot" name="screenshot" accept="image/*">
+                            <small class="form-text text-muted">Helps us verify your transaction faster.</small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Note:</strong> Your deposit will be credited to your account after blockchain confirmation (typically within 2 hours).
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100" id="confirmDepositButton">
+                            <i class="fas fa-check-circle me-2"></i> Confirm Deposit
                         </button>
-                    </div>
-                    
-                    <!-- QR Code (purely decorative) -->
-                    <div class="text-center mt-4">
-                        <div id="qrcode" style="display: inline-block; padding: 10px; background: white; border-radius: 8px;"></div>
-                    </div>
-                </div>
-
-                <!-- Alert -->
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i>
-                    <div>
-                        <strong>Important:</strong> Only send USDT (TRC-20) to this address. Sending other tokens may result in permanent loss.
-                    </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" id="depositBackBtn" style="display: none;" onclick="showDepositStep(1)">
+                    <i class="fas fa-arrow-left me-2"></i> Back
+                </button>
+                <div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="depositNextBtn" onclick="showDepositStep(2)">
+                        Next <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -799,6 +896,77 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/qrcode.js/qrcode.min.js"></script>
 <script>
+
+    // Show deposit step function
+    function showDepositStep(step) {
+        // Update progress bar
+        const progressBar = document.getElementById('depositProgressBar');
+        const stepAddressLabel = document.getElementById('stepAddressLabel');
+        const stepConfirmLabel = document.getElementById('stepConfirmLabel');
+        
+        if (step === 1) {
+            // Show Step 1
+            document.getElementById('depositStep1').style.display = 'block';
+            document.getElementById('depositStep2').style.display = 'none';
+            document.getElementById('depositBackBtn').style.display = 'none';
+            document.getElementById('depositNextBtn').style.display = 'inline-block';
+            
+            // Update progress indicators
+            progressBar.style.width = '50%';
+            progressBar.setAttribute('aria-valuenow', '50');
+            stepAddressLabel.classList.add('active');
+            stepConfirmLabel.classList.remove('active');
+        } else {
+            // Show Step 2
+            document.getElementById('depositStep1').style.display = 'none';
+            document.getElementById('depositStep2').style.display = 'block';
+            document.getElementById('depositBackBtn').style.display = 'inline-block';
+            document.getElementById('depositNextBtn').style.display = 'none';
+            
+            // Update progress indicators
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', '100');
+            stepAddressLabel.classList.add('active');
+            stepConfirmLabel.classList.add('active');
+        }
+    }
+
+    // Confirm deposit form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmForm = document.getElementById('confirmDepositForm');
+        const amountInput = document.getElementById('depositAmount');
+        const confirmButton = document.getElementById('confirmDepositButton');
+        
+        if (confirmForm) {
+            confirmForm.addEventListener('submit', function(event) {
+                const amount = parseFloat(amountInput.value);
+                
+                // Basic validation
+                if (isNaN(amount) || amount <= 0) {
+                    event.preventDefault();
+                    showToast('Please enter a valid deposit amount', 'error');
+                    amountInput.classList.add('is-invalid');
+                    return;
+                }
+                
+                // Disable button and show processing state
+                confirmButton.disabled = true;
+                confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+            });
+            
+            // Real-time validation
+            amountInput.addEventListener('input', function() {
+                const amount = parseFloat(amountInput.value);
+                if (isNaN(amount) || amount <= 0) {
+                    amountInput.classList.add('is-invalid');
+                    confirmButton.disabled = true;
+                } else {
+                    amountInput.classList.remove('is-invalid');
+                    confirmButton.disabled = false;
+                }
+            });
+        }
+    });
     // Add ripple effect to buttons
     document.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', function(e) {

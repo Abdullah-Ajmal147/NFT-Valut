@@ -22,8 +22,8 @@ class NFTAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('nft', 'seller', 'buyer', 'price', 'transaction_hash', 'created_at')
-    list_filter = ('created_at',)
+    list_display = ('nft', 'seller', 'buyer', 'price', 'transaction_hash', 'created_at', 'status', 'transaction_type')
+    list_filter = ('created_at', 'status', 'transaction_type')
     search_fields = ('nft__name', 'transaction_hash', 'seller__username', 'buyer__username')
     ordering = ('-created_at',)
     

@@ -14,6 +14,7 @@ urlpatterns = [
         template_name='users/logout.html', http_method_names=['get', 'post'] 
     ), name='logout'),
 
+    path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
      # Password Reset URLs
     path('password-reset/', 
          auth_views.PasswordResetView.as_view(
@@ -42,7 +43,9 @@ urlpatterns = [
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('wallet/', views.wallet, name='wallet'),
     path('withdraw/', views.withdraw, name='withdraw'),
-    path('claim-commissions/', views.claim_commissions, name='claim_commissions'),
+    path('claim-commissions/', views.claim_commissions, name='claim_commissions'),      
+
+    path('wallet/confirm-deposit/', views.confirm_deposit, name='confirm_deposit'),
 
     path('referrals/', views.referrals, name='referrals'),
     path('commissions/', views.commissions, name='commissions'),

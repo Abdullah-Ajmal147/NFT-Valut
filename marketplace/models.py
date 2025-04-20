@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from decimal import Decimal
 from django.utils import timezone
@@ -45,6 +45,16 @@ class depositAddress(models.Model):
 
     
 class Wallet(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed'),
+    ]
+    PAYMENT_TYPE=[
+        ('OTHER', 'Other'),
+        ('DEPOSIT', 'Deposit'),
+        ('WITHDRAWAL', 'Withdrawal'),
+    ]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wallet')
     eth_balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
 
@@ -52,11 +62,106 @@ class Wallet(models.Model):
 
     eth_deposit_address = models.CharField(max_length=66, blank=True, null=True)
     usdt_deposit_address = models.CharField(max_length=66, blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    payment_type = models.CharField(max_length=10, choices=PAYMENT_TYPE, default='OTHER')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def add_commission(self, amount):
         """Add commission to USDT balance."""
         self.usdt_balance += amount
         self.save()
+
+    def deposit(self, amount, currency='USDT'):
+        """
+        Process a deposit and distribute referral commissions.
+        
+        Args:
+            amount (Decimal or float): The deposit amount.
+            currency (str): The currency of the deposit ('USDT' or 'ETH').
+        
+        Returns:
+            bool: True if successful, False otherwise.
+        
+        Raises:
+            ValueError: If amount is invalid or currency is unsupported.
+        """
+        # Validate amount
+        try:
+            amount = Decimal(amount)
+            if amount <= 0:
+                raise ValueError("Deposit amount must be positive.")
+        except (TypeError, ValueError):
+            raise ValueError("Invalid deposit amount.")
+
+        # Validate currency
+        currency = currency.upper()
+        if currency not in ['USDT', 'ETH']:
+            raise ValueError("Unsupported currency. Use 'USDT' or 'ETH'.")
+
+        # Process deposit in a transaction to ensure consistency
+        with transaction.atomic():
+            # Update user's balance
+            if currency == 'USDT':
+                self.usdt_balance += amount
+            else:  # ETH
+                self.eth_balance += amount
+            self.save()
+
+            # Distribute referral commissions (only for USDT deposits for simplicity)
+            if currency == 'USDT':
+                self._distribute_referral_commissions(amount)
+
+        return True
+
+    def _distribute_referral_commissions(self, deposit_amount):
+        """
+        Distribute commissions to referrers based on deposit amount.
+        - First-level referrer: 12%
+        - Second-level referrer: 5%
+        """
+        # Get the first-level referrer
+        first_level_referrer = self.user.referrer
+        if first_level_referrer: # and first_level_referrer.is_email_verified:
+            try:
+                first_level_wallet = first_level_referrer.wallet
+                commission = deposit_amount * Decimal('0.12')  # 12%
+                first_level_wallet.add_commission(commission)
+            except Wallet.DoesNotExist:
+                pass  # Skip if referrer has no wallet (shouldn't happen with signal)
+
+            # Get the second-level referrer
+            second_level_referrer = first_level_referrer.referrer
+            if second_level_referrer: #and second_level_referrer.is_email_verified:
+                try:
+                    second_level_wallet = second_level_referrer.wallet
+                    commission = deposit_amount * Decimal('0.05')  # 5%
+                    second_level_wallet.add_commission(commission)
+                except Wallet.DoesNotExist:
+                    pass  # Skip if second-level referrer has no wallet
+
+    def _distribute_referral_commissions(self, deposit_amount):
+        first_level_referrer = self.user.referrer
+        if first_level_referrer:
+            try:
+                first_level_wallet = first_level_referrer.wallet
+                commission = deposit_amount * Decimal('0.12')  # 12%
+                first_level_wallet.add_commission(commission)
+                first_level_referrer.total_earnings += commission
+                first_level_referrer.save()
+            except Wallet.DoesNotExist:
+                pass
+
+        second_level_referrer = first_level_referrer.referrer if first_level_referrer else None
+        if second_level_referrer:
+            try:
+                second_level_wallet = second_level_referrer.wallet
+                commission = deposit_amount * Decimal('0.05')  # 5%
+                second_level_wallet.add_commission(commission)
+                second_level_referrer.total_earnings += commission
+                second_level_referrer.save()
+            except Wallet.DoesNotExist:
+                pass
 
     def __str__(self):
         return f"{self.user.username}'s Wallet"
@@ -101,7 +206,8 @@ class NFTOwnership(models.Model):
         print(f"Current commission claim date: {self.commission_claim_date}")
         print(f"Current day number: {self.day_number}")
         print(f"Current date: {timezone.now()}")
-        if self.commission_claim_date > timezone.now():
+
+        if self.commission_claim_date.date() < timezone.now().date():
             daily_increment = Decimal('0.0005')  # Increase by 0.05% each day
             if self.day_number < 20:
                 initial_rate = Decimal('0.01')  
@@ -209,6 +315,8 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     withdraw_address =  models.CharField(max_length=66, blank=True, null=True)
+    screenshot = models.ImageField(upload_to='deposit_screenshots/', null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.transaction_type} - {self.nft.name if self.nft else 'Wallet'} - {self.price} {self.currency}"
